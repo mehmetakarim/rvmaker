@@ -289,6 +289,14 @@ Hata **sentetik sesle tekrarlanmıyor** — sinüs ve sessizlik karışımların
 `dynaudnorm` süreyi koruyor. Bu yüzden `canli_ses_suresi_korunuyor` testi
 gerçek bir üretim `ses.mp3`'ü arıyor; bulamazsa atlıyor.
 
+## Sürüm numarası
+
+`package.json`, `src-tauri/tauri.conf.json` ve `src-tauri/Cargo.toml` aynı
+sürümü taşımalı ve git etiketiyle eşleşmeli. Sürüm iş akışı paket adlarını ve
+sürüm başlığını `tauri.conf.json`'dan alıyor: bir kez `v0.1.1` etiketi
+atılırken dosya 0.1.0'da kalmıştı ve yayın "RVMaker v0.1.0" adıyla,
+`RVMaker_0.1.0_*` dosyalarıyla çıktı.
+
 ## Bilinen sınırlar
 
 - **Kuyrukta eşzamanlı iş 1'e sabit.** ffmpeg zaten tüm çekirdekleri kullandığı
