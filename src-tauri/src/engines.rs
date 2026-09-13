@@ -264,10 +264,57 @@ fn system_voices(lang: &str) -> Vec<VoiceInfo> {
         .collect()
 }
 
-async fn elevenlabs_voices(client: &reqwest::Client, key: &str) -> Result<Vec<VoiceInfo>, String> {
+/// Dil kodunu okunur ada çevirir — hem listede hem aramada işe yarıyor.
+fn dil_adi(kod: &str) -> String {
+    match kod.split(['-', '_']).next().unwrap_or(kod) {
+        "" => String::new(),
+        "tr" => "Türkçe".to_string(),
+        "en" => "İngilizce".to_string(),
+        "de" => "Almanca".to_string(),
+        "fr" => "Fransızca".to_string(),
+        "es" => "İspanyolca".to_string(),
+        "it" => "İtalyanca".to_string(),
+        "pt" => "Portekizce".to_string(),
+        "ru" => "Rusça".to_string(),
+        "ar" => "Arapça".to_string(),
+        "ja" => "Japonca".to_string(),
+        "ko" => "Korece".to_string(),
+        "zh" => "Çince".to_string(),
+        other => other.to_uppercase(),
+    }
+}
+
+/// Ses listesinin sırası; küçük sayı üstte.
+///
+/// ElevenLabs varsayılan olarak İngilizce hazır sesleri öne koyuyor. Ölçülen
+/// bir hesapta 36 sesin 21'i böyleydi ve kullanıcının kendi eklediği 15 Türkçe
+/// ses listenin dibinde kalıyordu. Sırayı kullanıcının niyetine göre kuruyoruz.
+pub fn elevenlabs_rank(favori: bool, sahibi: bool, kategori: &str, dil: &str, hedef: &str) -> u8 {
+    if favori {
+        return 0;
+    }
+    // "premade" ElevenLabs'ın herkese açık hazır sesleri; gerisi kullanıcının
+    // kopyaladığı, ürettiği ya da kütüphaneden eklediği sesler.
+    let kendi = sahibi || (!kategori.is_empty() && kategori != "premade");
+    let dil_uyuyor = !hedef.is_empty() && dil.starts_with(hedef);
+
+    match (kendi, dil_uyuyor) {
+        (true, true) => 1,
+        (true, false) => 2,
+        (false, true) => 3,
+        (false, false) => 4,
+    }
+}
+
+async fn elevenlabs_voices(
+    client: &reqwest::Client,
+    key: &str,
+    lang: &str,
+) -> Result<Vec<VoiceInfo>, String> {
+    // v2 uç noktası favori ve sahiplik bilgisini de veriyor; v1 vermiyordu.
     let response = crate::tts::send_with_retry(
         client
-            .get("https://api.elevenlabs.io/v1/voices")
+            .get("https://api.elevenlabs.io/v2/voices?page_size=100")
             .header("xi-api-key", key),
         "ElevenLabs'e ulaşılamadı",
     )
@@ -284,7 +331,9 @@ async fn elevenlabs_voices(client: &reqwest::Client, key: &str) -> Result<Vec<Vo
         .await
         .map_err(|e| format!("ElevenLabs yanıtı okunamadı: {e}"))?;
 
-    Ok(payload
+    let hedef = lang.split(['-', '_']).next().unwrap_or("").to_lowercase();
+
+    let mut sesler: Vec<(u8, String, VoiceInfo)> = payload
         .get("voices")
         .and_then(|v| v.as_array())
         .map(|list| {
@@ -292,37 +341,73 @@ async fn elevenlabs_voices(client: &reqwest::Client, key: &str) -> Result<Vec<Vo
                 .filter_map(|v| {
                     let id = v.get("voice_id")?.as_str()?.to_string();
                     let name = v.get("name")?.as_str()?.to_string();
+                    let kategori = v.get("category").and_then(|c| c.as_str()).unwrap_or("");
+                    let sahibi = v.get("is_owner").and_then(|o| o.as_bool()).unwrap_or(false);
+                    let favori = v
+                        .get("favorited_at_unix")
+                        .map(|f| !f.is_null())
+                        .unwrap_or(false);
+
                     let labels = v.get("labels");
-                    let gender = labels
-                        .and_then(|l| l.get("gender"))
-                        .and_then(|g| g.as_str())
-                        .map(|g| match g {
-                            "female" => "Kadın",
-                            "male" => "Erkek",
-                            other => other,
-                        })
-                        .unwrap_or("—");
-                    let desc = labels
-                        .and_then(|l| l.get("description"))
-                        .and_then(|d| d.as_str())
-                        .unwrap_or("");
-                    Some(VoiceInfo {
-                        id,
-                        name,
-                        detail: if desc.is_empty() {
-                            gender.to_string()
-                        } else {
-                            format!("{gender} · {desc}")
+                    let etiket = |ad: &str| -> String {
+                        labels
+                            .and_then(|l| l.get(ad))
+                            .and_then(|x| x.as_str())
+                            .unwrap_or("")
+                            .to_string()
+                    };
+
+                    let dil = etiket("language");
+
+                    // Satırda ne kadar ayırt edici bilgi varsa arama o kadar işe
+                    // yarıyor; eskiden yalnızca "Kadın"/"Erkek" yazıyordu.
+                    let mut parcalar: Vec<String> = Vec::new();
+                    if favori {
+                        parcalar.push("favori".to_string());
+                    } else if sahibi || (!kategori.is_empty() && kategori != "premade") {
+                        parcalar.push("kendi sesin".to_string());
+                    }
+                    match etiket("gender").as_str() {
+                        "female" => parcalar.push("Kadın".to_string()),
+                        "male" => parcalar.push("Erkek".to_string()),
+                        "" => {}
+                        other => parcalar.push(other.to_string()),
+                    }
+                    let dil_metni = dil_adi(&dil);
+                    if !dil_metni.is_empty() {
+                        parcalar.push(dil_metni);
+                    }
+                    for ad in ["accent", "descriptive", "age"] {
+                        let deger = etiket(ad);
+                        if !deger.is_empty() {
+                            parcalar.push(deger.replace('_', " "));
+                        }
+                    }
+
+                    let sira = elevenlabs_rank(favori, sahibi, kategori, &dil, &hedef);
+                    Some((
+                        sira,
+                        name.to_lowercase(),
+                        VoiceInfo {
+                            id,
+                            name,
+                            detail: if parcalar.is_empty() {
+                                "—".to_string()
+                            } else {
+                                parcalar.join(" · ")
+                            },
+                            engine: "elevenlabs".to_string(),
                         },
-                        engine: "elevenlabs".to_string(),
-                    })
+                    ))
                 })
                 .collect()
         })
-        .unwrap_or_default())
+        .unwrap_or_default();
+
+    sesler.sort_by(|a, b| a.0.cmp(&b.0).then_with(|| a.1.cmp(&b.1)));
+    Ok(sesler.into_iter().map(|(_, _, v)| v).collect())
 }
 
-/// Bir motorun kullanılabilir seslerini döndürür.
 pub async fn list_voices(
     client: &reqwest::Client,
     engine: Engine,
@@ -357,7 +442,7 @@ pub async fn list_voices(
         Engine::ElevenLabs => {
             let key = read_key(Engine::ElevenLabs)
                 .ok_or_else(|| "ElevenLabs anahtarı tanımlı değil.".to_string())?;
-            elevenlabs_voices(client, &key).await
+            elevenlabs_voices(client, &key, lang).await
         }
     }
 }
@@ -761,6 +846,75 @@ pub async fn test_engine(client: &reqwest::Client, engine: Engine) -> Result<Str
     }
 
     Ok(format!("{} ses kullanılabilir", voices.len()))
+}
+
+#[cfg(test)]
+mod ses_sirasi_testleri {
+    use super::{dil_adi, elevenlabs_rank};
+
+    /// Gerçek hesapla listeyi basar:
+    /// `cargo test canli_ses_listesi -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn canli_ses_listesi() {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        let client = crate::tts::client().unwrap();
+        let sesler = rt
+            .block_on(super::list_voices(&client, super::Engine::ElevenLabs, "tr"))
+            .unwrap();
+        println!("toplam {} ses — ilk 12:", sesler.len());
+        for v in sesler.iter().take(12) {
+            println!("  {:32} | {}", v.name.chars().take(32).collect::<String>(), v.detail);
+        }
+        let hedef = sesler.iter().position(|v| v.id == "fg8pljYEn5ahwjyOQaro");
+        println!("Mustafa Silici sırası: {hedef:?}");
+    }
+
+    #[test]
+    fn favori_her_zaman_en_ustte() {
+        // Favori, İngilizce bir hazır ses olsa bile önde.
+        assert_eq!(elevenlabs_rank(true, false, "premade", "en", "tr"), 0);
+    }
+
+    #[test]
+    fn kendi_sesi_hazir_sesin_onunde() {
+        let kendi = elevenlabs_rank(false, false, "professional", "tr", "tr");
+        let hazir = elevenlabs_rank(false, false, "premade", "tr", "tr");
+        assert!(kendi < hazir, "kendi sesi önde olmalı: {kendi} < {hazir}");
+    }
+
+    #[test]
+    fn hedef_dil_ayni_gruptakileri_one_alir() {
+        let tr = elevenlabs_rank(false, false, "professional", "tr", "tr");
+        let en = elevenlabs_rank(false, false, "professional", "en", "tr");
+        assert!(tr < en);
+    }
+
+    /// Ölçülen hesabın gerçek dağılımı: 21 hazır İngilizce, 15 Türkçe kendi sesi.
+    #[test]
+    fn olculen_dagilim_dogru_siralanir() {
+        let mustafa = elevenlabs_rank(false, false, "professional", "tr", "tr");
+        let elara = elevenlabs_rank(false, true, "cloned", "tr", "tr");
+        let roger = elevenlabs_rank(false, false, "premade", "en", "tr");
+        assert!(mustafa < roger, "kullanıcının Türkçe sesi İngilizce hazır sesin önünde olmalı");
+        assert_eq!(mustafa, elara, "sahibi olduğu ve eklediği sesler aynı grupta");
+    }
+
+    #[test]
+    fn kategori_bilinmiyorsa_hazir_sayilmaz() {
+        // Alan boş gelirse kullanıcının sesi sanıp öne almıyoruz.
+        assert_eq!(elevenlabs_rank(false, false, "", "en", "tr"), 4);
+    }
+
+    #[test]
+    fn dil_adlarini_cevirir() {
+        assert_eq!(dil_adi("tr"), "Türkçe");
+        assert_eq!(dil_adi("tr-TR"), "Türkçe");
+        assert_eq!(dil_adi("en"), "İngilizce");
+        // Bilinmeyen kod olduğu gibi, büyük harfle gösteriliyor.
+        assert_eq!(dil_adi("nl"), "NL");
+        assert_eq!(dil_adi(""), "");
+    }
 }
 
 #[cfg(test)]
