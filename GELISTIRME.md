@@ -268,6 +268,27 @@ target-dir = "/Users/<kullanici>/Library/Caches/rvmaker-target"
 Bu dosya sürüm iş akışında bir kez depoya sızdı ve macOS paketleri
 `Permission denied` ile düştü — CI çalıştırıcısında o yol yok.
 
+## Ses normalizasyonu — `dynaudnorm` kullanma
+
+`dynaudnorm=f=250:g=15` ön-belleğini (15×250 ms) çıktıya geri vermiyor ve
+karışımın **son ~4 saniyesini yutuyor**. Sonuç: videonun sonunda seslendirme
+ve müzik birden kesiliyor, ekranda yalnızca arka plan kalıyor. Konteyner
+süresi doğru görünüyor — delik ancak ham örnek sayılınca ortaya çıkıyor:
+
+```
+mp4 video  : 38,13 sn
+mp4 sesi   : 34,13 sn   ← 4 sn eksik
+ses paketi : 29,49 → 33,50 sn arası boş
+```
+
+Yerine `speechnorm=e=6.25:r=0.00001:l=1` kullanılıyor: ses düzeyi neredeyse
+birebir aynı (-17,9 dB ortalama / -0,4 dB tepe; eskisi -18,0 / -0,8) ama süre
+korunuyor.
+
+Hata **sentetik sesle tekrarlanmıyor** — sinüs ve sessizlik karışımlarında
+`dynaudnorm` süreyi koruyor. Bu yüzden `canli_ses_suresi_korunuyor` testi
+gerçek bir üretim `ses.mp3`'ü arıyor; bulamazsa atlıyor.
+
 ## Bilinen sınırlar
 
 - **Kuyrukta eşzamanlı iş 1'e sabit.** ffmpeg zaten tüm çekirdekleri kullandığı

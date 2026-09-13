@@ -227,10 +227,15 @@ fn build_filter(
             String::new()
         };
 
+        // `dynaudnorm` KULLANMA: 15×250 ms'lik ön-belleğini çıktıya geri
+        // vermiyor ve sesin son ~4 saniyesini yutuyor. Ölçüldü — 38,5 sn'lik
+        // bir mikste yalnızca 34,5 sn örnek üretti, videonun sonunda
+        // seslendirme ve müzik birden kesiliyordu. `speechnorm` aynı ses
+        // düzeyini veriyor (-17,9 dB / -0,4 dB tepe) ama süreyi koruyor.
         filter.push_str(&format!(
             "[{music_input}:a]volume={volume:.3}[muzik];\
              [1:a][muzik]amix=inputs=2:duration=first:dropout_transition=0,\
-             dynaudnorm=f=250:g=15{fade}[ses];"
+             speechnorm=e=6.25:r=0.00001:l=1{fade}[ses];"
         ));
     }
 
@@ -559,6 +564,111 @@ mod tests {
     fn filtre_noktali_virgulle_bitmez() {
         let filter = build_filter(&[segment(1.0)], true, 1.0, None, 1080, 1920, 0.0);
         assert!(!filter.ends_with(';'), "filtre zinciri hatalı bitiyor: {filter}");
+    }
+
+    /// `dynaudnorm` ön-belleğini geri vermiyor ve sesin sonunu yutuyordu.
+    /// Videonun son saniyelerinde seslendirme ve müzik birden kesiliyor,
+    /// ekranda yalnızca arka plan kalıyordu.
+    #[test]
+    fn ses_normalizasyonu_dynaudnorm_kullanmaz() {
+        let filter = build_filter(&[segment(2.0)], true, 2.0, Some(0.1), 1080, 1920, 1.0);
+        assert!(
+            !filter.contains("dynaudnorm"),
+            "dynaudnorm sesin sonunu yutuyor, kullanılmamalı: {filter}"
+        );
+        assert!(filter.contains("speechnorm"), "normalizasyon eksik: {filter}");
+    }
+
+    /// Karışımdan geçen sesin süresi korunuyor mu?
+    ///
+    /// **Sentetik sesle bu hata tekrarlanmıyor** — sinüs ve sessizlik
+    /// karışımları denendi, `dynaudnorm` onlarda süreyi koruyordu. Hatayı
+    /// ancak gerçek üretim sesi ortaya çıkardı. Bu yüzden test, varsa
+    /// `~/Movies/RVMaker` altındaki gerçek bir `ses.mp3`'ü kullanıyor.
+    /// Bulamazsa atlıyor: yanlış bir güven vermesin.
+    ///
+    /// `cargo test canli_ses_suresi -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn canli_ses_suresi_korunuyor() {
+        use std::process::Command;
+
+        let Some(home) = crate::toolpath::home_dir() else {
+            println!("ev dizini yok — atlanıyor");
+            return;
+        };
+        let kok = home.join("Movies/RVMaker");
+        let Some(konusma) = std::fs::read_dir(&kok).ok().and_then(|girdiler| {
+            girdiler
+                .flatten()
+                .map(|e| e.path().join("ses.mp3"))
+                .find(|p| p.exists())
+        }) else {
+            println!("gerçek ses.mp3 bulunamadı ({}) — atlanıyor", kok.display());
+            return;
+        };
+        println!("kullanılan ses: {}", konusma.display());
+
+        let ffmpeg = super::tool_path("ffmpeg").expect("ffmpeg gerekli");
+        let dir = std::env::temp_dir().join("rvmaker-ses-suresi");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let muzik = dir.join("muzik.wav");
+        let cikti = dir.join("karisim.m4a");
+
+        assert!(
+            Command::new(&ffmpeg)
+                .args([
+                    "-hide_banner", "-loglevel", "error", "-f", "lavfi", "-i",
+                    "aevalsrc=0.2*sin(220*2*PI*t):d=200:s=44100", "-y",
+                ])
+                .arg(&muzik)
+                .status()
+                .unwrap()
+                .success(),
+            "müzik üretilemedi"
+        );
+
+        let ham_sure = |yol: &std::path::Path| -> f64 {
+            let out = Command::new(&ffmpeg)
+                .args(["-hide_banner", "-loglevel", "error"])
+                .arg("-i")
+                .arg(yol)
+                .args(["-ac", "1", "-ar", "8000", "-f", "s16le", "-"])
+                .output()
+                .unwrap();
+            out.stdout.len() as f64 / 16_000.0
+        };
+
+        let girdi_sn = ham_sure(&konusma);
+
+        // Üretimdeki zincirin aynısı.
+        let filtre = "[1:a]volume=0.100[m];\
+                      [0:a][m]amix=inputs=2:duration=first:dropout_transition=0,\
+                      speechnorm=e=6.25:r=0.00001:l=1[ses]";
+
+        assert!(
+            Command::new(&ffmpeg)
+                .args(["-hide_banner", "-loglevel", "error"])
+                .arg("-i").arg(&konusma)
+                .arg("-i").arg(&muzik)
+                .args(["-filter_complex", filtre, "-map", "[ses]", "-c:a", "aac", "-y"])
+                .arg(&cikti)
+                .status()
+                .unwrap()
+                .success(),
+            "karışım üretilemedi"
+        );
+
+        // Konteyner süresi doğru görünürken içeride delik olabiliyor; hata tam
+        // da buydu. O yüzden ham örnek sayıyoruz.
+        let cikti_sn = ham_sure(&cikti);
+        println!("girdi {girdi_sn:.2} sn → çıktı {cikti_sn:.2} sn");
+
+        assert!(
+            cikti_sn > girdi_sn - 0.5,
+            "ses kırpılmış: girdi {girdi_sn:.2} sn, çıktı {cikti_sn:.2} sn"
+        );
     }
 
     #[test]
