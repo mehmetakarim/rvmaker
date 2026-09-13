@@ -136,6 +136,13 @@ pub fn elevenlabs_error(status: u16, detail: &str) -> String {
         };
     }
 
+    if detail.contains("ivc_not_permitted") || detail.contains("Instantly cloned voices") {
+        return "Bu ses anlık klonlanmış (IVC) ve ücretsiz planda API üzerinden \
+                kullanılamıyor. Listenin üstündeki yıldızlı seslerden birini seç \
+                ya da aboneliği yükselt."
+            .to_string();
+    }
+
     // Ücretsiz planda kütüphane sesleri API'den kullanılamıyor.
     if detail.contains("Free users cannot use library voices") {
         return "Bu ses, ElevenLabs kütüphanesinden eklenmiş ve ücretsiz planda \
@@ -313,11 +320,35 @@ fn dil_adi(kod: &str) -> String {
     }
 }
 
-/// Ücretsiz planda kütüphaneden eklenen sesler API üzerinden kullanılamıyor —
-/// ElevenLabs 402 döndürüyor. Kendi kopyaladığın/ürettiğin sesler ve herkese
-/// açık hazır sesler çalışıyor.
-pub fn elevenlabs_usable(ucretsiz: bool, sahibi: bool, kategori: &str) -> bool {
-    !ucretsiz || sahibi || kategori == "premade"
+/// Ücretsiz planda hangi seslerin API'den kullanılabildiği — her kategori
+/// tek tek denenerek ölçüldü:
+///
+/// | kategori | sonuç |
+/// |---|---|
+/// | `generated` | çalışıyor |
+/// | `premade` | çalışıyor |
+/// | `cloned` | 401 `ivc_not_permitted` |
+/// | `professional` | 402 `payment_required` |
+///
+/// Sahiplik belirleyici değil: `cloned` sesler kullanıcının kendisine ait ama
+/// ücretsiz planda çalışmıyor.
+pub fn elevenlabs_usable(ucretsiz: bool, kategori: &str) -> bool {
+    !ucretsiz || matches!(kategori, "generated" | "premade")
+}
+
+/// Sıralama için bir sesin özeti.
+pub struct SesOzeti<'a> {
+    pub favori: bool,
+    pub kullanilabilir: bool,
+    /// Kullanıcının kendi ürettiği ya da kopyaladığı ses mi?
+    pub kendi: bool,
+    /// Sesin kendi dili hedef dil mi?
+    pub anadil_hedef: bool,
+    /// Hedef dil ElevenLabs tarafından bu ses için doğrulanmış mı?
+    pub dogrulanmis_hedef: bool,
+    /// Çok dilli modelle başka dilleri de okuyabiliyor mu?
+    pub cok_dilli: bool,
+    pub kategori: &'a str,
 }
 
 /// Hesabın ücretsiz planda olup olmadığını sorar.
@@ -351,31 +382,25 @@ async fn elevenlabs_free_tier(client: &reqwest::Client, key: &str) -> bool {
 /// ElevenLabs varsayılan olarak İngilizce hazır sesleri öne koyuyor. Ölçülen
 /// bir hesapta 36 sesin 21'i böyleydi ve kullanıcının kendi eklediği 15 Türkçe
 /// ses listenin dibinde kalıyordu. Sırayı kullanıcının niyetine göre kuruyoruz.
-pub fn elevenlabs_rank(
-    kullanilabilir: bool,
-    favori: bool,
-    sahibi: bool,
-    kategori: &str,
-    dil: &str,
-    hedef: &str,
-) -> u8 {
-    // Seçilemeyecek sesler en sona; kullanıcı bunları deneyip 402 almasın.
-    if !kullanilabilir {
+pub fn elevenlabs_rank(o: &SesOzeti) -> u8 {
+    // Seçilemeyecek sesler en sona; kullanıcı bunları deneyip hata almasın.
+    if !o.kullanilabilir {
         return 9;
     }
-    if favori {
+    if o.favori {
         return 0;
     }
-    // "premade" ElevenLabs'ın herkese açık hazır sesleri; gerisi kullanıcının
-    // kopyaladığı, ürettiği ya da kütüphaneden eklediği sesler.
-    let kendi = sahibi || (!kategori.is_empty() && kategori != "premade");
-    let dil_uyuyor = !hedef.is_empty() && dil.starts_with(hedef);
-
-    match (kendi, dil_uyuyor) {
-        (true, true) => 1,
-        (true, false) => 2,
-        (false, true) => 3,
-        (false, false) => 4,
+    match (o.kendi, o.anadil_hedef, o.dogrulanmis_hedef, o.cok_dilli) {
+        // Kullanıcının kendi ürettiği, hedef dildeki sesler
+        (true, true, _, _) => 1,
+        (true, _, _, _) => 2,
+        // Hazır ama anadili hedef dil
+        (false, true, _, _) => 3,
+        // Hedef dil bu ses için doğrulanmış
+        (false, _, true, _) => 4,
+        // Çok dilli model hedef dili okuyabiliyor, aksanlı da olsa
+        (false, _, _, true) => 5,
+        _ => 6,
     }
 }
 
@@ -436,12 +461,41 @@ async fn elevenlabs_voices(
                     // Satırda ne kadar ayırt edici bilgi varsa arama o kadar işe
                     // yarıyor; eskiden yalnızca "Kadın"/"Erkek" yazıyordu.
                     let mut parcalar: Vec<String> = Vec::new();
-                    let kullanilabilir = elevenlabs_usable(ucretsiz, sahibi, kategori);
+                    let kullanilabilir = elevenlabs_usable(ucretsiz, kategori);
+                    let kendi = matches!(kategori, "generated" | "cloned");
+
+                    // Hedef dili okuyabilir mi? Üç ayrı kanıt var.
+                    let anadil_hedef = !hedef.is_empty() && dil.starts_with(&hedef);
+                    let dogrulanmis_hedef = v
+                        .get("verified_languages")
+                        .and_then(|x| x.as_array())
+                        .map(|list| {
+                            list.iter().any(|d| {
+                                d.get("language")
+                                    .and_then(|l| l.as_str())
+                                    .is_some_and(|l| !hedef.is_empty() && l.starts_with(&hedef))
+                            })
+                        })
+                        .unwrap_or(false);
+                    let cok_dilli = v
+                        .get("high_quality_base_model_ids")
+                        .and_then(|x| x.as_array())
+                        .map(|list| {
+                            list.iter()
+                                .filter_map(|m| m.as_str())
+                                .any(|m| m.contains("multilingual"))
+                        })
+                        .unwrap_or(false);
+
                     if !kullanilabilir {
-                        parcalar.push("ücretli plan gerekiyor".to_string());
+                        parcalar.push(if kategori == "cloned" {
+                            "ücretli plan gerekiyor · klon ses".to_string()
+                        } else {
+                            "ücretli plan gerekiyor · kütüphane sesi".to_string()
+                        });
                     } else if favori {
                         parcalar.push("favori".to_string());
-                    } else if sahibi {
+                    } else if kendi {
                         parcalar.push("kendi sesin".to_string());
                     }
                     match etiket("gender").as_str() {
@@ -461,8 +515,25 @@ async fn elevenlabs_voices(
                         }
                     }
 
-                    let sira =
-                        elevenlabs_rank(kullanilabilir, favori, sahibi, kategori, &dil, &hedef);
+                    // Türkçe okuyabildiği doğrulanmışsa bunu söylemek gerekiyor:
+                    // hazır sesler "İngilizce" etiketli ama Türkçe metni okuyor.
+                    if !anadil_hedef && kullanilabilir {
+                        if dogrulanmis_hedef {
+                            parcalar.push(format!("{} okuyabilir", dil_adi(&hedef)));
+                        } else if cok_dilli {
+                            parcalar.push("çok dilli".to_string());
+                        }
+                    }
+
+                    let sira = elevenlabs_rank(&SesOzeti {
+                        favori,
+                        kullanilabilir,
+                        kendi,
+                        anadil_hedef,
+                        dogrulanmis_hedef,
+                        cok_dilli,
+                        kategori,
+                    });
                     Some((
                         sira,
                         name.to_lowercase(),
@@ -475,7 +546,7 @@ async fn elevenlabs_voices(
                                 parcalar.join(" · ")
                             },
                             engine: "elevenlabs".to_string(),
-                            own: sahibi,
+                            own: kendi && kullanilabilir,
                             usable: kullanilabilir,
                         },
                     ))
@@ -933,7 +1004,106 @@ pub async fn test_engine(client: &reqwest::Client, engine: Engine) -> Result<Str
 
 #[cfg(test)]
 mod ses_sirasi_testleri {
-    use super::{dil_adi, elevenlabs_rank};
+    use super::{dil_adi, elevenlabs_rank, elevenlabs_usable, SesOzeti};
+
+    fn ozet(kategori: &str) -> SesOzeti<'_> {
+        SesOzeti {
+            favori: false,
+            kullanilabilir: true,
+            kendi: matches!(kategori, "generated" | "cloned"),
+            anadil_hedef: false,
+            dogrulanmis_hedef: false,
+            cok_dilli: false,
+            kategori,
+        }
+    }
+
+    /// Her kategori ElevenLabs'a tek tek sorularak ölçüldü.
+    #[test]
+    fn ucretsiz_planda_calisan_kategoriler() {
+        assert!(elevenlabs_usable(true, "generated"), "generated çalışıyor");
+        assert!(elevenlabs_usable(true, "premade"), "premade çalışıyor");
+        assert!(!elevenlabs_usable(true, "cloned"), "cloned 401 veriyor");
+        assert!(!elevenlabs_usable(true, "professional"), "professional 402 veriyor");
+    }
+
+    #[test]
+    fn ucretli_planda_hepsi_calisir() {
+        for kat in ["generated", "premade", "cloned", "professional"] {
+            assert!(elevenlabs_usable(false, kat), "{kat} ücretli planda çalışmalı");
+        }
+    }
+
+    #[test]
+    fn kullanilamayan_sesler_en_sonda() {
+        let mut o = ozet("professional");
+        o.kullanilabilir = false;
+        // Favori bile olsa seçilemeyecekse listenin dibinde olmalı.
+        o.favori = true;
+        assert_eq!(elevenlabs_rank(&o), 9);
+    }
+
+    #[test]
+    fn favori_kullanilabilirse_en_ustte() {
+        let mut o = ozet("premade");
+        o.favori = true;
+        assert_eq!(elevenlabs_rank(&o), 0);
+    }
+
+    /// Ölçülen hesabın gerçek sırası: kendi Türkçe sesi → Türkçe okuyabildiği
+    /// doğrulanmış hazır ses → çok dilli hazır ses → kilitli sesler.
+    #[test]
+    fn olculen_hesap_dogru_siralanir() {
+        let mut korku = ozet("generated");
+        korku.anadil_hedef = true;
+
+        let mut daniel = ozet("premade");
+        daniel.dogrulanmis_hedef = true;
+        daniel.cok_dilli = true;
+
+        let mut bella = ozet("premade");
+        bella.cok_dilli = true;
+
+        let mut adam = ozet("premade");
+        adam.cok_dilli = false;
+
+        let mut belma = ozet("professional");
+        belma.kullanilabilir = false;
+
+        let sira = [
+            elevenlabs_rank(&korku),
+            elevenlabs_rank(&daniel),
+            elevenlabs_rank(&bella),
+            elevenlabs_rank(&adam),
+            elevenlabs_rank(&belma),
+        ];
+        assert!(
+            sira.windows(2).all(|p| p[0] < p[1]),
+            "sıra artan olmalı, bulunan: {sira:?}"
+        );
+    }
+
+    #[test]
+    fn klon_ses_kendi_olsa_da_one_gecmez() {
+        let mut elara = ozet("cloned");
+        elara.anadil_hedef = true;
+        elara.kullanilabilir = false; // ücretsiz planda
+        let mut premade = ozet("premade");
+        premade.cok_dilli = true;
+        assert!(
+            elevenlabs_rank(&premade) < elevenlabs_rank(&elara),
+            "çalışan hazır ses, çalışmayan klon sesin önünde olmalı"
+        );
+    }
+
+    #[test]
+    fn dil_adlarini_cevirir() {
+        assert_eq!(dil_adi("tr"), "Türkçe");
+        assert_eq!(dil_adi("tr-TR"), "Türkçe");
+        assert_eq!(dil_adi("en"), "İngilizce");
+        assert_eq!(dil_adi("nl"), "NL");
+        assert_eq!(dil_adi(""), "");
+    }
 
     /// Gerçek hesapla listeyi basar:
     /// `cargo test canli_ses_listesi -- --ignored --nocapture`
@@ -945,60 +1115,15 @@ mod ses_sirasi_testleri {
         let sesler = rt
             .block_on(super::list_voices(&client, super::Engine::ElevenLabs, "tr"))
             .unwrap();
-        println!("toplam {} ses — ilk 12:", sesler.len());
-        for v in sesler.iter().take(12) {
-            println!("  {:32} | {}", v.name.chars().take(32).collect::<String>(), v.detail);
+        println!("toplam {} ses — ilk 10:", sesler.len());
+        for v in sesler.iter().take(10) {
+            let isaret = if v.own { "*" } else if v.usable { " " } else { "#" };
+            println!("{isaret} {:30} | {}", v.name.chars().take(30).collect::<String>(), v.detail);
         }
-        let hedef = sesler.iter().position(|v| v.id == "fg8pljYEn5ahwjyOQaro");
-        println!("Mustafa Silici sırası: {hedef:?}");
-    }
-
-    #[test]
-    fn favori_her_zaman_en_ustte() {
-        // Favori, İngilizce bir hazır ses olsa bile önde.
-        assert_eq!(elevenlabs_rank(true, true, false, "premade", "en", "tr"), 0);
-    }
-
-    #[test]
-    fn kendi_sesi_hazir_sesin_onunde() {
-        let kendi = elevenlabs_rank(true, false, true, "cloned", "tr", "tr");
-        let hazir = elevenlabs_rank(true, false, false, "premade", "tr", "tr");
-        assert!(kendi < hazir, "kendi sesi önde olmalı: {kendi} < {hazir}");
-    }
-
-    #[test]
-    fn hedef_dil_ayni_gruptakileri_one_alir() {
-        let tr = elevenlabs_rank(true, false, false, "premade", "tr", "tr");
-        let en = elevenlabs_rank(true, false, false, "premade", "en", "tr");
-        assert!(tr < en);
-    }
-
-    /// Ölçülen hesabın gerçek dağılımı: 21 hazır İngilizce, 15 Türkçe kendi sesi.
-    #[test]
-    fn olculen_dagilim_dogru_siralanir() {
-        // Ücretsiz planda: kendi Türkçe sesi önde, İngilizce hazır ses ortada,
-        // kullanılamayan kütüphane sesi en sonda.
-        let elara = elevenlabs_rank(true, false, true, "cloned", "tr", "tr");
-        let roger = elevenlabs_rank(true, false, false, "premade", "en", "tr");
-        let mustafa = elevenlabs_rank(false, false, false, "professional", "tr", "tr");
-        assert!(elara < roger, "kendi sesi hazır sesin önünde olmalı");
-        assert!(roger < mustafa, "kullanılamayan kütüphane sesi en sonda olmalı");
-    }
-
-    #[test]
-    fn kategori_bilinmiyorsa_hazir_sayilmaz() {
-        // Alan boş gelirse kullanıcının sesi sanıp öne almıyoruz.
-        assert_eq!(elevenlabs_rank(true, false, false, "", "en", "tr"), 4);
-    }
-
-    #[test]
-    fn dil_adlarini_cevirir() {
-        assert_eq!(dil_adi("tr"), "Türkçe");
-        assert_eq!(dil_adi("tr-TR"), "Türkçe");
-        assert_eq!(dil_adi("en"), "İngilizce");
-        // Bilinmeyen kod olduğu gibi, büyük harfle gösteriliyor.
-        assert_eq!(dil_adi("nl"), "NL");
-        assert_eq!(dil_adi(""), "");
+        println!("--- son 3 ---");
+        for v in sesler.iter().rev().take(3) {
+            println!("# {:30} | {}", v.name.chars().take(30).collect::<String>(), v.detail);
+        }
     }
 }
 
