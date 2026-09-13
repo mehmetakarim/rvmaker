@@ -1,0 +1,43 @@
+[package]
+name = "rvmaker"
+version = "0.1.0"
+description = "Reddit gönderilerinden dikey video üreten masaüstü uygulaması"
+authors = ["Mehmet Akar"]
+edition = "2021"
+rust-version = "1.77"
+
+[lib]
+name = "rvmaker_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset", "macos-private-api"] }
+tauri-plugin-opener = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-notification = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "gzip"] }
+urlencoding = "2"
+keyring = { version = "3", features = ["apple-native", "windows-native"] }
+tokio = { version = "1", features = ["time"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Tam hata ayıklama simgeleri 3,5 GB'lık bir hedef klasör üretiyordu ve dahili
+# diskte yer bırakmadı. `debug = 1` yalnızca satır tablolarını tutar: geri izleme
+# hâlâ okunur, boyut ve bağlama süresi belirgin düşer.
+[profile.dev]
+debug = 1
+split-debuginfo = "unpacked"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

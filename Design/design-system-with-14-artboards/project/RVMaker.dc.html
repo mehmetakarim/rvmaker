@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js"></script>
+<style>
+:root{
+--rv-bg-base:#14161b;--rv-bg-surface:#191b21;--rv-bg-elevated:#1f222a;--rv-bg-inset:#101116;
+--rv-border:#282c36;--rv-border-strong:#3a3f4c;
+--rv-text:#e8eaf0;--rv-text-muted:#a3a9b8;--rv-text-faint:#7d8494;
+--rv-accent:#3fbf8f;--rv-accent-hover:#57cea3;--rv-accent-quiet:#7fd9bb;--rv-accent-soft:rgba(63,191,143,.16);
+--rv-success:#4da3e8;--rv-success-soft:rgba(77,163,232,.14);
+--rv-warning:#e0a341;--rv-warning-soft:rgba(224,163,65,.14);
+--rv-danger:#f0616d;--rv-danger-soft:rgba(240,97,109,.14);
+--rv-space-1:4px;--rv-space-2:8px;--rv-space-3:12px;--rv-space-4:16px;--rv-space-5:24px;--rv-space-6:32px;
+--rv-radius-sm:6px;--rv-radius-md:10px;--rv-radius-pill:999px;
+--rv-shadow-1:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.24);
+--rv-font:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+--rv-font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+--rv-focus:0 0 0 2px var(--rv-bg-base),0 0 0 4px var(--rv-accent);
+}
+[data-theme="light"]{
+--rv-bg-base:#f6f7f9;--rv-bg-surface:#ffffff;--rv-bg-elevated:#ffffff;--rv-bg-inset:#eff1f4;
+--rv-border:#e3e5ea;--rv-border-strong:#c9cdd7;
+--rv-text:#15171d;--rv-text-muted:#565c6b;--rv-text-faint:#767d8d;
+--rv-accent:#1b8f6a;--rv-accent-hover:#15785a;--rv-accent-quiet:#15785a;--rv-accent-soft:rgba(27,143,106,.10);
+--rv-success:#2b7fc4;--rv-warning:#b57616;--rv-danger:#d13b49;
+--rv-shadow-1:0 1px 2px rgba(20,22,27,.06),0 8px 24px rgba(20,22,27,.08);
+--rv-focus:0 0 0 2px var(--rv-bg-surface),0 0 0 4px var(--rv-accent);
+}
+body{margin:0;background:#0d0e12;font-family:var(--rv-font);-webkit-font-smoothing:antialiased}
+a{color:var(--rv-accent-quiet);text-decoration:none}
+a:hover{color:var(--rv-accent-hover)}
+@keyframes rv-pulse{0%,100%{opacity:1}50%{opacity:.45}}
+</style>
+</helmet>
+<section style="display:flex;flex-direction:column;gap:56px;padding:56px;background:#0d0e12;min-height:100vh;box-sizing:border-box;--rv-accent:{{ accent }};--rv-accent-hover:{{ accentHover }};--rv-accent-quiet:{{ accentQuiet }};--rv-accent-soft:{{ accentSoft }}">
+
+<div style="display:flex;flex-direction:column;gap:4px;color:#e8eaf0;font-family:Inter,sans-serif">
+<div style="font-size:20px;font-weight:600;letter-spacing:-.01em">RVMaker · Arayüz Tasarımı</div>
+<div style="font-size:13px;color:#7d8494">14 artboard · koyu tema birincil · 1280 × 832 (bir artboard 1440 × 900)</div>
+</div>
+
+<!-- 01 -->
+<div id="1a" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">01-onboarding-kurulum</span><span style="font-size:11px;color:#5f6675">1280 × 832 · İlk açılış</span></div>
+<div style="width:1280px;height:832px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+  <header data-component="TitleBar" style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px 0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">RVMaker</span>
+    <span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint)">Kurulum</span>
+  </header>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;min-height:0;overflow:auto">
+    <div style="width:620px;display:flex;flex-direction:column;gap:24px;padding:32px 0">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:20px;font-weight:600;letter-spacing:-.01em">RVMaker'ı hazırlayalım</div>
+        <div style="font-size:13px;color:var(--rv-text-muted);line-height:1.5;text-wrap:pretty">Video üretmek için dört bileşen gerekiyor. Eksik olanları buradan kurabilirsin; kurulum arka planda çalışır.</div>
+      </div>
+      <div data-component="SetupChecklist" style="display:flex;flex-direction:column;background:var(--rv-bg-surface);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--rv-border)">
+          <span style="width:24px;height:24px;flex:none;display:grid;place-items:center;border-radius:var(--rv-radius-sm);background:var(--rv-success-soft);color:var(--rv-success)"><i data-lucide="check" style="width:14px;height:14px"></i></span>
+          <div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:500">ffmpeg</span><span style="font-size:12px;color:var(--rv-text-faint)">7.1 · /opt/homebrew/bin/ffmpeg</span></div>
+          <span style="margin-left:auto;font-size:12px;color:var(--rv-success)">Hazır</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--rv-border)">
+          <span style="width:24px;height:24px;flex:none;display:grid;place-items:center;border-radius:var(--rv-radius-sm);background:var(--rv-success-soft);color:var(--rv-success)"><i data-lucide="check" style="width:14px;height:14px"></i></span>
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:500">Python ortamı</span><span style="font-size:12px;color:var(--rv-text-faint)">3.12 · sanal ortam kuruldu</span></div>
+          <span style="margin-left:auto;font-size:12px;color:var(--rv-success)">Hazır</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--rv-border)">
+          <span style="width:24px;height:24px;flex:none;display:grid;place-items:center;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);animation:rv-pulse 1.6s ease-in-out infinite"><i data-lucide="arrow-down" style="width:14px;height:14px"></i></span>
+          <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:0">
+            <div style="display:flex;align-items:baseline;gap:8px"><span style="font-weight:500">Arka plan video kitaplığı</span><span style="font-size:12px;color:var(--rv-text-faint)">3 klipten 2'si indi · 148 MB / 240 MB</span></div>
+            <div data-component="ProgressBar" style="height:4px;border-radius:999px;background:var(--rv-bg-inset);overflow:hidden"><div style="width:62%;height:100%;background:var(--rv-accent);border-radius:999px"></div></div>
+          </div>
+          <span style="margin-left:auto;font-size:12px;color:var(--rv-text-muted);font-variant-numeric:tabular-nums">%62</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:rgba(224,163,65,.04)">
+          <span style="width:24px;height:24px;flex:none;display:grid;place-items:center;border-radius:var(--rv-radius-sm);background:var(--rv-warning-soft);color:var(--rv-warning)"><i data-lucide="alert-triangle" style="width:14px;height:14px"></i></span>
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:500">Çeviri servisi erişimi</span><span style="font-size:12px;color:var(--rv-text-faint)">Bağlantı doğrulanamadı</span></div>
+          <button style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px;border-radius:var(--rv-radius-sm);background:var(--rv-accent);color:#fff;border:1px solid transparent;font:500 12px/1 var(--rv-font);cursor:pointer;box-shadow:var(--rv-focus)">Kur</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <button style="display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);color:var(--rv-text);border:1px solid var(--rv-border-strong);font:500 13px/1 var(--rv-font);cursor:pointer">Yeniden denetle</button>
+        <span style="font-size:12px;color:var(--rv-text-faint)">Kurulum bitince otomatik devam edilir.</span>
+        <button style="margin-left:auto;height:32px;padding:0 12px;border-radius:var(--rv-radius-sm);background:transparent;color:var(--rv-text-muted);border:1px solid transparent;font:500 13px/1 var(--rv-font);cursor:pointer">Atla</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 02 -->
+<div id="1b" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">02-yeni-video-kaynak</span><span style="font-size:11px;color:#5f6675">1280 × 832 · Ana giriş</span></div>
+<div style="width:1280px;height:832px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+  <header style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">Yeni Video</span>
+    <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--rv-text-faint)"><i data-lucide="layers" style="width:14px;height:14px"></i>Kuyrukta 2 iş</span>
+  </header>
+  <div style="flex:1;display:flex;min-height:0">
+    <aside data-component="AppSidebar" style="width:220px;flex:none;display:flex;flex-direction:column;padding:8px;border-right:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-weight:500"><i data-lucide="plus" style="width:16px;height:16px"></i>Yeni Video</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="list-ordered" style="width:16px;height:16px"></i>Kuyruk<span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums">2</span></div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="library" style="width:16px;height:16px"></i>Kitaplık</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="settings" style="width:16px;height:16px"></i>Ayarlar</div>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:6px;padding:10px 8px 4px;border-top:1px solid var(--rv-border);font-size:11px;color:var(--rv-text-faint)"><span style="width:6px;height:6px;border-radius:999px;background:var(--rv-success);flex:none"></span>ffmpeg hazır · Python 3.12</div>
+    </aside>
+    <main style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:auto">
+      <div style="padding:40px 40px 0;display:flex;flex-direction:column;gap:24px;max-width:820px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:20px;font-weight:600;letter-spacing:-.01em">Yeni video</div>
+          <div style="font-size:13px;color:var(--rv-text-muted)">Bir Reddit gönderi bağlantısı yapıştır, gerisini hazır ayar halletsin.</div>
+        </div>
+        <div data-component="UrlField" style="display:flex;gap:8px">
+          <div style="flex:1;display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-inset);border:1px solid var(--rv-accent);box-shadow:var(--rv-focus)">
+            <i data-lucide="link" style="width:18px;height:18px;color:var(--rv-text-faint)"></i>
+            <span style="font-size:15px;color:var(--rv-text)">reddit.com/r/AskReddit/comments/1f2k9x/</span><span style="width:1px;height:20px;background:var(--rv-accent);animation:rv-pulse 1s steps(2) infinite"></span>
+          </div>
+          <button style="display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 20px;border-radius:var(--rv-radius-md);background:var(--rv-accent);color:#fff;border:1px solid transparent;font:600 14px/1 var(--rv-font);cursor:pointer">Devam et<i data-lucide="arrow-right" style="width:16px;height:16px"></i></button>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;font-size:12px;color:var(--rv-text-faint)">
+          <span style="display:inline-flex;align-items:center;gap:6px"><i data-lucide="clipboard" style="width:14px;height:14px"></i>Panodan yapıştır <span style="font-family:var(--rv-font-mono);padding:1px 5px;border:1px solid var(--rv-border);border-radius:4px">⌘V</span></span>
+          <span style="display:inline-flex;align-items:center;gap:6px"><i data-lucide="compass" style="width:14px;height:14px"></i><a href="#1b">Bir subreddit'ten seç</a></span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:12px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Hazır ayarlar</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div data-component="PresetCard" style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-accent);position:relative">
+              <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-weight:500">Hızlı TR</span><span style="width:16px;height:16px;display:grid;place-items:center;border-radius:999px;background:var(--rv-accent);color:#fff"><i data-lucide="check" style="width:11px;height:11px"></i></span></div>
+              <div style="font-size:12px;color:var(--rv-text-muted);line-height:1.5">Türkçe · Kadın ses · Minecraft</div>
+              <div style="display:flex;gap:6px;font-size:11px;color:var(--rv-text-faint)"><span style="padding:2px 6px;border-radius:4px;background:var(--rv-bg-inset)">8 yorum</span><span style="padding:2px 6px;border-radius:4px;background:var(--rv-bg-inset)">~52 sn</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+              <div style="font-weight:500">Anlatıcı</div>
+              <div style="font-size:12px;color:var(--rv-text-muted);line-height:1.5">Türkçe · Erkek ses · Gradyan</div>
+              <div style="display:flex;gap:6px;font-size:11px;color:var(--rv-text-faint)"><span style="padding:2px 6px;border-radius:4px;background:var(--rv-bg-inset)">12 yorum</span><span style="padding:2px 6px;border-radius:4px;background:var(--rv-bg-inset)">~78 sn</span></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:var(--rv-radius-md);border:1px dashed var(--rv-border-strong);color:var(--rv-text-faint);font-size:12px"><i data-lucide="plus" style="width:14px;height:14px"></i>Hazır ayar oluştur</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:40px">
+          <div style="font-size:12px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase;margin-bottom:6px">Son kullanılanlar</div>
+          <div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-surface);border:1px solid var(--rv-border)"><span style="font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">r/tifu/comments/1e8x2m/bugun-isyerinde</span><span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint)">dün</span><i data-lucide="corner-down-left" style="width:14px;height:14px;color:var(--rv-text-faint)"></i></div>
+          <div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:var(--rv-radius-sm)"><span style="font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">r/AskReddit/comments/1d1p0q/en-tuhaf-is-gorusmesi</span><span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint)">3 gün önce</span></div>
+          <div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:var(--rv-radius-sm)"><span style="font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">r/relationships/comments/1c9v4k/komsum-her-gece</span><span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint)">5 gün önce</span></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- 03 -->
+<div id="1c" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">03-yeni-video-icerik</span><span style="font-size:11px;color:#5f6675">1280 × 832 · Yorum seçimi, satır içi çeviri düzenleme</span></div>
+<div style="width:1280px;height:832px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+  <header style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">Yeni Video · İçerik</span>
+  </header>
+  <div style="flex:1;display:flex;min-height:0">
+    <aside style="width:220px;flex:none;display:flex;flex-direction:column;padding:8px;border-right:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-weight:500"><i data-lucide="plus" style="width:16px;height:16px"></i>Yeni Video</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="list-ordered" style="width:16px;height:16px"></i>Kuyruk</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="library" style="width:16px;height:16px"></i>Kitaplık</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="settings" style="width:16px;height:16px"></i>Ayarlar</div>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:6px;padding:10px 8px 4px;border-top:1px solid var(--rv-border);font-size:11px;color:var(--rv-text-faint)"><span style="width:6px;height:6px;border-radius:999px;background:var(--rv-success);flex:none"></span>ffmpeg hazır · Python 3.12</div>
+    </aside>
+    <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+      <div data-component="StepProgress" style="flex:none;display:flex;align-items:center;gap:8px;height:44px;padding:0 20px;border-bottom:1px solid var(--rv-border);font-size:12px;color:var(--rv-text-faint)">
+        <span style="display:inline-flex;align-items:center;gap:6px;color:var(--rv-text-muted)"><i data-lucide="check" style="width:13px;height:13px;color:var(--rv-success)"></i>Kaynak</span>
+        <i data-lucide="chevron-right" style="width:13px;height:13px"></i>
+        <span style="color:var(--rv-text);font-weight:500">İçerik</span>
+        <i data-lucide="chevron-right" style="width:13px;height:13px"></i><span>Ses</span>
+        <i data-lucide="chevron-right" style="width:13px;height:13px"></i><span>Görünüm</span>
+      </div>
+      <div style="flex:1;display:flex;min-height:0">
+        <div style="width:300px;flex:none;border-right:1px solid var(--rv-border);padding:20px;display:flex;flex-direction:column;gap:16px;overflow:auto">
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--rv-text-faint)"><span style="padding:2px 7px;border-radius:var(--rv-radius-pill);background:var(--rv-bg-elevated);border:1px solid var(--rv-border);color:var(--rv-text-muted)">r/AskReddit</span><span>4 sa önce</span></div>
+          <div style="font-size:15px;font-weight:600;line-height:1.45;text-wrap:pretty">İnsanların en çok yanıldığı, ama kimsenin düzeltmediği şey nedir?</div>
+          <div style="font-size:12px;color:var(--rv-text-muted);line-height:1.6">Türkçe: “İnsanların en çok yanıldığı, ama kimsenin düzeltmediği şey nedir?”</div>
+          <div style="display:flex;gap:16px;padding:12px 0;border-top:1px solid var(--rv-border);border-bottom:1px solid var(--rv-border)">
+            <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">48,2 B</span><span style="font-size:11px;color:var(--rv-text-faint)">oy</span></div>
+            <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">6.104</span><span style="font-size:11px;color:var(--rv-text-faint)">yorum</span></div>
+            <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">24</span><span style="font-size:11px;color:var(--rv-text-faint)">getirildi</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label style="font-size:12px;color:var(--rv-text-muted)">Sıralama</label>
+            <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border)"><span>En çok oy alan</span><i data-lucide="chevron-down" style="width:14px;height:14px;margin-left:auto;color:var(--rv-text-faint)"></i></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label style="font-size:12px;color:var(--rv-text-muted)">Maksimum yorum</label>
+            <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;height:4px;border-radius:999px;background:var(--rv-bg-inset);position:relative"><div style="width:40%;height:100%;background:var(--rv-accent);border-radius:999px"></div><div style="position:absolute;left:40%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:999px;background:var(--rv-text);border:1px solid var(--rv-border-strong)"></div></div><span style="font-variant-numeric:tabular-nums;font-size:12px;color:var(--rv-text-muted);width:20px;text-align:right">10</span></div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+          <div data-component="DurationSummary" style="flex:none;display:flex;align-items:center;gap:14px;height:48px;padding:0 20px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+            <span style="display:inline-flex;align-items:center;gap:6px;font-weight:500"><i data-lucide="clock" style="width:15px;height:15px;color:var(--rv-accent-quiet)"></i>Tahmini süre <span style="font-variant-numeric:tabular-nums">01:04</span></span>
+            <span style="font-size:12px;color:var(--rv-text-faint)">7 yorum seçili · 812 karakter</span>
+            <div style="flex:1;max-width:220px;height:4px;border-radius:999px;background:var(--rv-bg-inset);overflow:hidden"><div style="width:70%;height:100%;background:var(--rv-accent)"></div></div>
+            <span style="font-size:11px;color:var(--rv-text-faint)">hedef 90 sn</span>
+            <button style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 14px;border-radius:var(--rv-radius-sm);background:var(--rv-accent);color:#fff;border:1px solid transparent;font:500 13px/1 var(--rv-font);cursor:pointer">Ses ayarlarına geç</button>
+          </div>
+          <div style="flex:1;overflow:auto;padding:12px 20px;display:flex;flex-direction:column;gap:6px">
+            <div data-component="CommentRow" style="display:flex;gap:10px;padding:12px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+              <i data-lucide="grip-vertical" style="width:14px;height:14px;color:var(--rv-text-faint);margin-top:2px"></i>
+              <span style="width:15px;height:15px;flex:none;margin-top:1px;border-radius:4px;background:var(--rv-accent);display:grid;place-items:center;color:#fff"><i data-lucide="check" style="width:11px;height:11px"></i></span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--rv-text-faint)"><span>u/sessiz_kunduz</span><span>·</span><span>2,1 B oy</span></div>
+                <div style="font-size:12px;color:var(--rv-text-faint);line-height:1.5">Most people think you need to rinse rice until the water runs clear, but that strips the starch you actually want.</div>
+                <div style="line-height:1.55">Çoğu insan pirinci suyu berraklaşana kadar yıkamak gerektiğini sanıyor, oysa bu tam da işine yarayacak nişastayı alıp götürüyor.</div>
+              </div>
+              <div style="flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums"><span>132 krk</span><span>~9 sn</span><i data-lucide="pencil" style="width:13px;height:13px"></i></div>
+            </div>
+            <div style="display:flex;gap:10px;padding:12px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-accent);box-shadow:var(--rv-focus)">
+              <i data-lucide="grip-vertical" style="width:14px;height:14px;color:var(--rv-text-faint);margin-top:2px"></i>
+              <span style="width:15px;height:15px;flex:none;margin-top:1px;border-radius:4px;background:var(--rv-accent);display:grid;place-items:center;color:#fff"><i data-lucide="check" style="width:11px;height:11px"></i></span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--rv-text-faint)"><span>u/gece_vardiyasi</span><span>·</span><span>1,7 B oy</span><span style="margin-left:6px;padding:1px 6px;border-radius:var(--rv-radius-pill);background:var(--rv-accent-soft);color:var(--rv-accent-quiet)">düzenleniyor</span></div>
+                <div style="font-size:12px;color:var(--rv-text-faint);line-height:1.5">That bats are blind. They see fine — echolocation is just an extra sense on top.</div>
+                <div style="padding:8px 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-accent);line-height:1.55">Yarasaların kör olduğu. Gayet iyi görüyorlar — ekolokasyon sadece üstüne eklenen fazladan bir duyu.<span style="display:inline-block;width:1px;height:15px;vertical-align:-3px;margin-left:1px;background:var(--rv-accent);animation:rv-pulse 1s steps(2) infinite"></span></div>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <button style="height:26px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-accent);color:#fff;border:none;font:500 12px/1 var(--rv-font);cursor:pointer">Kaydet</button>
+                  <button style="height:26px;padding:0 10px;border-radius:var(--rv-radius-sm);background:transparent;color:var(--rv-text-muted);border:1px solid var(--rv-border);font:500 12px/1 var(--rv-font);cursor:pointer">Vazgeç</button>
+                  <button style="height:26px;padding:0 10px;border-radius:var(--rv-radius-sm);background:transparent;color:var(--rv-text-faint);border:none;font:500 12px/1 var(--rv-font);cursor:pointer">Çeviriyi yenile</button>
+                </div>
+              </div>
+              <div style="flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums"><span>104 krk</span><span>~7 sn</span></div>
+            </div>
+            <div style="display:flex;gap:10px;padding:12px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+              <i data-lucide="grip-vertical" style="width:14px;height:14px;color:var(--rv-text-faint);margin-top:2px"></i>
+              <span style="width:15px;height:15px;flex:none;margin-top:1px;border-radius:4px;background:var(--rv-accent);display:grid;place-items:center;color:#fff"><i data-lucide="check" style="width:11px;height:11px"></i></span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--rv-text-faint)"><span>u/mavi_pencere</span><span>·</span><span>980 oy</span></div>
+                <div style="font-size:12px;color:var(--rv-text-faint);line-height:1.5">Goldfish have a three second memory. They can be trained to run mazes weeks later.</div>
+                <div style="line-height:1.55">Japon balıklarının üç saniyelik hafızası olduğu. Haftalar sonra bile labirent çözmeyi hatırlayacak şekilde eğitilebiliyorlar.</div>
+              </div>
+              <div style="flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums"><span>118 krk</span><span>~8 sn</span></div>
+            </div>
+            <div style="display:flex;gap:10px;padding:12px;border-radius:var(--rv-radius-md);border:1px solid transparent;opacity:.55">
+              <i data-lucide="grip-vertical" style="width:14px;height:14px;color:var(--rv-text-faint);margin-top:2px"></i>
+              <span style="width:15px;height:15px;flex:none;margin-top:1px;border-radius:4px;border:1px solid var(--rv-border-strong)"></span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--rv-text-faint)"><span>u/kirmizi_defter</span><span>·</span><span>640 oy</span></div>
+                <div style="font-size:12px;color:var(--rv-text-faint);line-height:1.5">The Great Wall is visible from space. It is not, not with the naked eye.</div>
+                <div style="line-height:1.55">Çin Seddi'nin uzaydan görüldüğü. Görünmüyor, en azından çıplak gözle.</div>
+              </div>
+              <div style="flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums"><span>96 krk</span><span>~7 sn</span></div>
+            </div>
+            <div style="display:flex;gap:10px;padding:12px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+              <i data-lucide="grip-vertical" style="width:14px;height:14px;color:var(--rv-text-faint);margin-top:2px"></i>
+              <span style="width:15px;height:15px;flex:none;margin-top:1px;border-radius:4px;background:var(--rv-accent);display:grid;place-items:center;color:#fff"><i data-lucide="check" style="width:11px;height:11px"></i></span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                <div style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--rv-text-faint)"><span>u/uzak_ada</span><span>·</span><span>512 oy</span></div>
+                <div style="font-size:12px;color:var(--rv-text-faint);line-height:1.5">Cracking your knuckles causes arthritis. Decades of studies say otherwise.</div>
+                <div style="line-height:1.55">Parmak çıtlatmanın eklem iltihabına yol açtığı. Onlarca yıllık çalışmalar tam tersini söylüyor.</div>
+              </div>
+              <div style="flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums"><span>110 krk</span><span>~8 sn</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- 04 -->
+<div id="1d" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">04-yeni-video-ses</span><span style="font-size:11px;color:#5f6675">1280 × 832 · Seslendirme</span></div>
+<div style="width:1280px;height:832px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+  <header style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">Yeni Video · Ses</span>
+  </header>
+  <div style="flex:1;display:flex;min-height:0">
+    <aside style="width:220px;flex:none;display:flex;flex-direction:column;padding:8px;border-right:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-weight:500"><i data-lucide="plus" style="width:16px;height:16px"></i>Yeni Video</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="list-ordered" style="width:16px;height:16px"></i>Kuyruk</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="library" style="width:16px;height:16px"></i>Kitaplık</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="settings" style="width:16px;height:16px"></i>Ayarlar</div>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:6px;padding:10px 8px 4px;border-top:1px solid var(--rv-border);font-size:11px;color:var(--rv-text-faint)"><span style="width:6px;height:6px;border-radius:999px;background:var(--rv-success);flex:none"></span>ffmpeg hazır · Python 3.12</div>
+    </aside>
+    <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+      <div style="flex:none;display:flex;align-items:center;gap:8px;height:44px;padding:0 20px;border-bottom:1px solid var(--rv-border);font-size:12px;color:var(--rv-text-faint)">
+        <span style="display:inline-flex;align-items:center;gap:6px;color:var(--rv-text-muted)"><i data-lucide="check" style="width:13px;height:13px;color:var(--rv-success)"></i>Kaynak</span><i data-lucide="chevron-right" style="width:13px;height:13px"></i>
+        <span style="display:inline-flex;align-items:center;gap:6px;color:var(--rv-text-muted)"><i data-lucide="check" style="width:13px;height:13px;color:var(--rv-success)"></i>İçerik</span><i data-lucide="chevron-right" style="width:13px;height:13px"></i>
+        <span style="color:var(--rv-text);font-weight:500">Ses</span><i data-lucide="chevron-right" style="width:13px;height:13px"></i><span>Görünüm</span>
+        <button style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 14px;border-radius:var(--rv-radius-sm);background:var(--rv-accent);color:#fff;border:1px solid transparent;font:500 13px/1 var(--rv-font);cursor:pointer">Görünüme geç</button>
+      </div>
+      <div style="flex:1;display:flex;min-height:0">
+        <div style="width:236px;flex:none;border-right:1px solid var(--rv-border);padding:12px;display:flex;flex-direction:column;gap:2px;overflow:auto">
+          <div style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase;padding:4px 8px 8px">Motor</div>
+          <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-text);font-weight:500"><i data-lucide="mic" style="width:15px;height:15px;color:var(--rv-accent-quiet)"></i>ElevenLabs<span style="margin-left:auto;width:6px;height:6px;border-radius:999px;background:var(--rv-success)"></span></div>
+          <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="languages" style="width:15px;height:15px"></i>Google Translate<span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint)">ücretsiz</span></div>
+          <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="sparkles" style="width:15px;height:15px"></i>OpenAI<span style="margin-left:auto;width:6px;height:6px;border-radius:999px;background:var(--rv-warning)"></span></div>
+          <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="music-2" style="width:15px;height:15px"></i>TikTok</div>
+          <div style="display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="monitor" style="width:15px;height:15px"></i>Sistem sesi</div>
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:var(--rv-radius-sm);background:var(--rv-warning-soft);border:1px solid rgba(224,163,65,.28)">
+            <div style="display:flex;gap:8px;font-size:12px;color:var(--rv-text-muted);line-height:1.5"><i data-lucide="key-round" style="width:14px;height:14px;color:var(--rv-warning);flex:none;margin-top:2px"></i>OpenAI için API anahtarı tanımlı değil.</div>
+            <a href="#1k" style="font-size:12px;font-weight:500">Ayarlar → Seslendirme</a>
+          </div>
+        </div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:auto;padding:20px;gap:20px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="font-size:15px;font-weight:600">ElevenLabs sesleri</div>
+            <div style="display:flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-size:12px;color:var(--rv-text-faint)"><i data-lucide="search" style="width:13px;height:13px"></i>Ses ara</div>
+            <div data-component="SegmentedControl" style="margin-left:auto;display:flex;padding:2px;gap:2px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-size:12px">
+              <span style="padding:4px 10px;border-radius:4px;background:var(--rv-bg-elevated);color:var(--rv-text);font-weight:500">Tümü</span>
+              <span style="padding:4px 10px;border-radius:4px;color:var(--rv-text-muted)">Kadın</span>
+              <span style="padding:4px 10px;border-radius:4px;color:var(--rv-text-muted)">Erkek</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;border-radius:var(--rv-radius-md);border:1px solid var(--rv-border);background:var(--rv-bg-surface);overflow:hidden">
+            <div data-component="VoicePreviewRow" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--rv-border);background:var(--rv-accent-soft)">
+              <button style="width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:999px;background:var(--rv-accent);color:#fff;border:none;cursor:pointer"><i data-lucide="pause" style="width:13px;height:13px"></i></button>
+              <div style="display:flex;flex-direction:column;gap:2px;width:150px"><span style="font-weight:500">Derya</span><span style="font-size:11px;color:var(--rv-text-faint)">Kadın · doğal · TR</span></div>
+              <div style="flex:1;display:flex;align-items:center;gap:2px;height:26px">
+                <span style="flex:1;height:40%;background:var(--rv-accent);border-radius:2px"></span><span style="flex:1;height:75%;background:var(--rv-accent);border-radius:2px"></span><span style="flex:1;height:95%;background:var(--rv-accent);border-radius:2px"></span><span style="flex:1;height:55%;background:var(--rv-accent);border-radius:2px"></span><span style="flex:1;height:80%;background:var(--rv-accent);border-radius:2px"></span><span style="flex:1;height:35%;background:var(--rv-accent);border-radius:2px"></span><span style="flex:1;height:65%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:90%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:45%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:70%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:30%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:60%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:85%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:50%;background:var(--rv-border-strong);border-radius:2px"></span>
+              </div>
+              <span style="font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums">0:03 / 0:08</span>
+              <span style="width:16px;height:16px;display:grid;place-items:center;border-radius:999px;background:var(--rv-accent);color:#fff"><i data-lucide="check" style="width:11px;height:11px"></i></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--rv-border)">
+              <button style="width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:999px;background:var(--rv-bg-elevated);color:var(--rv-text-muted);border:1px solid var(--rv-border);cursor:pointer"><i data-lucide="play" style="width:13px;height:13px"></i></button>
+              <div style="display:flex;flex-direction:column;gap:2px;width:150px"><span style="font-weight:500">Kerem</span><span style="font-size:11px;color:var(--rv-text-faint)">Erkek · derin · TR</span></div>
+              <div style="flex:1;display:flex;align-items:center;gap:2px;height:26px"><span style="flex:1;height:50%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:85%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:35%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:70%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:95%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:45%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:60%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:80%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:40%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:75%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:55%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:90%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:30%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:65%;background:var(--rv-border-strong);border-radius:2px"></span></div>
+              <span style="font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums">0:08</span>
+              <span style="width:16px;height:16px;border-radius:999px;border:1px solid var(--rv-border-strong)"></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 14px">
+              <button style="width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:999px;background:var(--rv-bg-elevated);color:var(--rv-text-muted);border:1px solid var(--rv-border);cursor:pointer"><i data-lucide="play" style="width:13px;height:13px"></i></button>
+              <div style="display:flex;flex-direction:column;gap:2px;width:150px"><span style="font-weight:500">Nil</span><span style="font-size:11px;color:var(--rv-text-faint)">Kadın · genç · TR</span></div>
+              <div style="flex:1;display:flex;align-items:center;gap:2px;height:26px"><span style="flex:1;height:60%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:40%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:90%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:55%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:70%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:35%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:80%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:50%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:95%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:45%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:65%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:30%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:75%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:60%;background:var(--rv-border-strong);border-radius:2px"></span></div>
+              <span style="font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums">0:08</span>
+              <span style="width:16px;height:16px;border-radius:999px;border:1px solid var(--rv-border-strong)"></span>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+              <div style="display:flex;align-items:baseline"><span style="font-weight:500">Konuşma hızı</span><span style="margin-left:auto;font-variant-numeric:tabular-nums;color:var(--rv-text-muted)">1,15×</span></div>
+              <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;height:4px;border-radius:999px;background:var(--rv-bg-inset);position:relative"><div style="width:58%;height:100%;background:var(--rv-accent);border-radius:999px"></div><div style="position:absolute;left:58%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:999px;background:var(--rv-text);border:1px solid var(--rv-border-strong)"></div></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--rv-text-faint)"><span>0,75×</span><span>1,75×</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+              <div style="display:flex;align-items:baseline"><span style="font-weight:500">Cümle arası sessizlik</span><span style="margin-left:auto;font-variant-numeric:tabular-nums;color:var(--rv-text-muted)">320 ms</span></div>
+              <div style="display:flex;align-items:center;gap:10px"><div style="flex:1;height:4px;border-radius:999px;background:var(--rv-bg-inset);position:relative"><div style="width:32%;height:100%;background:var(--rv-accent);border-radius:999px"></div><div style="position:absolute;left:32%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:999px;background:var(--rv-text);border:1px solid var(--rv-border-strong)"></div></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--rv-text-faint)"><span>0 ms</span><span>1000 ms</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- 05 -->
+<div id="1e" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">05-yeni-video-gorunum</span><span style="font-size:11px;color:#5f6675">1280 × 832 · Canlı 9:16 önizleme</span></div>
+<div style="width:1280px;height:832px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+  <header style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">Yeni Video · Görünüm</span>
+  </header>
+  <div style="flex:1;display:flex;min-height:0">
+    <aside style="width:220px;flex:none;display:flex;flex-direction:column;padding:8px;border-right:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-weight:500"><i data-lucide="plus" style="width:16px;height:16px"></i>Yeni Video</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="list-ordered" style="width:16px;height:16px"></i>Kuyruk</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="library" style="width:16px;height:16px"></i>Kitaplık</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="settings" style="width:16px;height:16px"></i>Ayarlar</div>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:6px;padding:10px 8px 4px;border-top:1px solid var(--rv-border);font-size:11px;color:var(--rv-text-faint)"><span style="width:6px;height:6px;border-radius:999px;background:var(--rv-success);flex:none"></span>ffmpeg hazır · Python 3.12</div>
+    </aside>
+    <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+      <div style="flex:none;display:flex;align-items:center;gap:8px;height:44px;padding:0 20px;border-bottom:1px solid var(--rv-border);font-size:12px;color:var(--rv-text-faint)">
+        <span style="display:inline-flex;align-items:center;gap:6px;color:var(--rv-text-muted)"><i data-lucide="check" style="width:13px;height:13px;color:var(--rv-success)"></i>Kaynak</span><i data-lucide="chevron-right" style="width:13px;height:13px"></i>
+        <span style="display:inline-flex;align-items:center;gap:6px;color:var(--rv-text-muted)"><i data-lucide="check" style="width:13px;height:13px;color:var(--rv-success)"></i>İçerik</span><i data-lucide="chevron-right" style="width:13px;height:13px"></i>
+        <span style="display:inline-flex;align-items:center;gap:6px;color:var(--rv-text-muted)"><i data-lucide="check" style="width:13px;height:13px;color:var(--rv-success)"></i>Ses</span><i data-lucide="chevron-right" style="width:13px;height:13px"></i>
+        <span style="color:var(--rv-text);font-weight:500">Görünüm</span>
+        <button style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 16px;border-radius:var(--rv-radius-sm);background:var(--rv-accent);color:#fff;border:1px solid transparent;font:600 13px/1 var(--rv-font);cursor:pointer"><i data-lucide="clapperboard" style="width:14px;height:14px"></i>Oluştur</button>
+      </div>
+      <div style="flex:1;display:flex;min-height:0">
+        <div style="flex:1;min-width:0;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:22px">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center"><span style="font-weight:500">Arka plan videosu</span><span style="margin-left:auto;font-size:12px;color:var(--rv-text-faint)">döngü · sessiz</span></div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+              <div data-component="BackgroundTile" style="display:flex;flex-direction:column;gap:6px">
+                <div style="aspect-ratio:9/16;border-radius:var(--rv-radius-sm);border:2px solid var(--rv-accent);background:repeating-linear-gradient(135deg,#2a3140 0 6px,#232937 6px 12px);position:relative"><span style="position:absolute;right:5px;top:5px;width:16px;height:16px;display:grid;place-items:center;border-radius:999px;background:var(--rv-accent);color:#fff"><i data-lucide="check" style="width:11px;height:11px"></i></span></div>
+                <span style="font-size:12px">Minecraft</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="aspect-ratio:9/16;border-radius:var(--rv-radius-sm);border:1px solid var(--rv-border);background:repeating-linear-gradient(135deg,#232937 0 6px,#1d2230 6px 12px)"></div>
+                <span style="font-size:12px;color:var(--rv-text-muted)">Gradyan</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="aspect-ratio:9/16;border-radius:var(--rv-radius-sm);border:1px solid var(--rv-border);background:repeating-linear-gradient(135deg,#232937 0 6px,#1d2230 6px 12px)"></div>
+                <span style="font-size:12px;color:var(--rv-text-muted)">Sörf</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div style="aspect-ratio:9/16;border-radius:var(--rv-radius-sm);border:1px dashed var(--rv-border-strong);display:grid;place-items:center;color:var(--rv-text-faint)"><i data-lucide="folder-plus" style="width:18px;height:18px"></i></div>
+                <span style="font-size:12px;color:var(--rv-text-muted)">Yerel dosya</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+            <div style="display:flex;align-items:center;gap:10px"><i data-lucide="music" style="width:15px;height:15px;color:var(--rv-text-faint)"></i><span style="font-weight:500">Arka plan müziği</span>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:8px;height:28px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-size:12px;color:var(--rv-text-muted)">Lo-fi · sakin<i data-lucide="chevron-down" style="width:13px;height:13px"></i></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="font-size:12px;color:var(--rv-text-muted);width:78px">Ses seviyesi</span><div style="flex:1;height:4px;border-radius:999px;background:var(--rv-bg-inset);position:relative"><div style="width:18%;height:100%;background:var(--rv-accent);border-radius:999px"></div><div style="position:absolute;left:18%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:999px;background:var(--rv-text);border:1px solid var(--rv-border-strong)"></div></div><span style="font-size:12px;color:var(--rv-text-muted);font-variant-numeric:tabular-nums;width:34px;text-align:right">%18</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <span style="font-weight:500">Yorum kartı</span>
+            <div style="display:flex;align-items:center;gap:12px"><span style="font-size:12px;color:var(--rv-text-muted);width:96px">Tema</span>
+              <div style="display:flex;padding:2px;gap:2px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-size:12px">
+                <span style="padding:5px 14px;border-radius:4px;background:var(--rv-bg-elevated);color:var(--rv-text);font-weight:500">Koyu</span>
+                <span style="padding:5px 14px;border-radius:4px;color:var(--rv-text-muted)">Açık</span>
+                <span style="padding:5px 14px;border-radius:4px;color:var(--rv-text-muted)">Saydam</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="font-size:12px;color:var(--rv-text-muted);width:96px">Yazı boyutu</span><div style="flex:1;max-width:280px;height:4px;border-radius:999px;background:var(--rv-bg-inset);position:relative"><div style="width:52%;height:100%;background:var(--rv-accent);border-radius:999px"></div><div style="position:absolute;left:52%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:999px;background:var(--rv-text);border:1px solid var(--rv-border-strong);box-shadow:var(--rv-focus)"></div></div><span style="font-size:12px;color:var(--rv-text-muted);font-variant-numeric:tabular-nums">42 px</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="font-size:12px;color:var(--rv-text-muted);width:96px">Kart genişliği</span><div style="flex:1;max-width:280px;height:4px;border-radius:999px;background:var(--rv-bg-inset);position:relative"><div style="width:74%;height:100%;background:var(--rv-accent);border-radius:999px"></div><div style="position:absolute;left:74%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:999px;background:var(--rv-text);border:1px solid var(--rv-border-strong)"></div></div><span style="font-size:12px;color:var(--rv-text-muted);font-variant-numeric:tabular-nums">%86</span></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="font-size:12px;color:var(--rv-text-muted);width:96px">Altyazı</span>
+              <div data-component="Switch" style="width:34px;height:20px;border-radius:999px;background:var(--rv-accent);display:flex;align-items:center;padding:2px;box-sizing:border-box"><span style="margin-left:auto;width:16px;height:16px;border-radius:999px;background:#fff"></span></div>
+              <span style="font-size:12px;color:var(--rv-text-faint)">Konuşmayla eşzamanlı kelime vurgusu</span>
+            </div>
+          </div>
+        </div>
+        <div data-component="PhonePreview" style="width:400px;flex:none;border-left:1px solid var(--rv-border);background:var(--rv-bg-surface);display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px">
+          <div style="width:100%;display:flex;align-items:center;font-size:12px;color:var(--rv-text-faint)"><span>Canlı önizleme</span><span style="margin-left:auto;font-family:var(--rv-font-mono)">1080 × 1920</span></div>
+          <div style="width:270px;height:480px;border-radius:20px;border:1px solid var(--rv-border-strong);background:repeating-linear-gradient(135deg,#242b3a 0 8px,#1e2431 8px 16px);position:relative;overflow:hidden;box-shadow:var(--rv-shadow-1)">
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,15,.35),rgba(10,11,15,.05) 40%,rgba(10,11,15,.5))"></div>
+            <div style="position:absolute;left:16px;right:16px;top:50%;transform:translateY(-50%);padding:14px;border-radius:12px;background:rgba(20,22,27,.92);border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:#9aa1b1"><span style="width:14px;height:14px;border-radius:999px;background:#3a4152"></span>u/sessiz_kunduz<span>· 2,1 B</span></div>
+              <div style="font-size:14px;line-height:1.4;color:#f2f4f8">Çoğu insan pirinci suyu berraklaşana kadar yıkamak gerektiğini sanıyor…</div>
+            </div>
+            <div style="position:absolute;left:16px;right:16px;bottom:16px;display:flex;flex-direction:column;gap:6px">
+              <div style="height:3px;border-radius:999px;background:rgba(255,255,255,.18);overflow:hidden"><div style="width:34%;height:100%;background:#fff"></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.7);font-family:var(--rv-font-mono)"><span>0:22</span><span>1:04</span></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button style="width:30px;height:30px;display:grid;place-items:center;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border);color:var(--rv-text-muted);cursor:pointer"><i data-lucide="skip-back" style="width:14px;height:14px"></i></button>
+            <button style="width:34px;height:34px;display:grid;place-items:center;border-radius:999px;background:var(--rv-accent);border:none;color:#fff;cursor:pointer"><i data-lucide="play" style="width:15px;height:15px"></i></button>
+            <button style="width:30px;height:30px;display:grid;place-items:center;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border);color:var(--rv-text-muted);cursor:pointer"><i data-lucide="skip-forward" style="width:14px;height:14px"></i></button>
+            <span style="margin-left:8px;font-size:11px;color:var(--rv-text-faint)">Kart 2 / 7</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- 06 -->
+<div id="1f" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">06-render-calisiyor</span><span style="font-size:11px;color:#5f6675">1440 × 900 · Günlük paneli açık</span></div>
+<div style="width:1440px;height:900px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+  <header style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">Üretim · en-tuhaf-yanilgi</span>
+    <span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint)">Tahmini bitiş 14:32</span>
+  </header>
+  <div style="flex:1;display:flex;min-height:0">
+    <aside style="width:220px;flex:none;display:flex;flex-direction:column;padding:8px;border-right:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-weight:500"><i data-lucide="plus" style="width:16px;height:16px"></i>Yeni Video</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="list-ordered" style="width:16px;height:16px"></i>Kuyruk<span style="margin-left:auto;font-size:11px;color:var(--rv-accent-quiet)">1 çalışıyor</span></div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="library" style="width:16px;height:16px"></i>Kitaplık</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="settings" style="width:16px;height:16px"></i>Ayarlar</div>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:6px;padding:10px 8px 4px;border-top:1px solid var(--rv-border);font-size:11px;color:var(--rv-text-faint)"><span style="width:6px;height:6px;border-radius:999px;background:var(--rv-success);flex:none"></span>ffmpeg hazır · Python 3.12</div>
+    </aside>
+    <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+      <div style="flex:none;display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--rv-border)">
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1">
+          <div style="display:flex;align-items:baseline;gap:10px"><span style="font-weight:600;font-size:15px">Video oluşturuluyor</span><span style="font-size:12px;color:var(--rv-text-faint)">4 / 6 aşama · kalan ~2 dk 10 sn</span><span style="margin-left:auto;font-variant-numeric:tabular-nums;font-weight:600">%58</span></div>
+          <div style="height:5px;border-radius:999px;background:var(--rv-bg-inset);overflow:hidden"><div style="width:58%;height:100%;background:var(--rv-accent);border-radius:999px"></div></div>
+        </div>
+        <button style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 14px;border-radius:var(--rv-radius-sm);background:transparent;color:var(--rv-text-muted);border:1px solid var(--rv-border-strong);font:500 13px/1 var(--rv-font);cursor:pointer">İptal</button>
+      </div>
+      <div style="flex:1;display:flex;min-height:0">
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+          <div style="flex:1;min-height:0;display:grid;place-items:center;padding:20px;background:var(--rv-bg-inset)">
+            <div style="width:250px;height:444px;border-radius:18px;border:1px solid var(--rv-border-strong);background:repeating-linear-gradient(135deg,#242b3a 0 8px,#1e2431 8px 16px);position:relative;overflow:hidden">
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,11,15,.3),rgba(10,11,15,.5))"></div>
+              <div style="position:absolute;left:14px;right:14px;top:50%;transform:translateY(-50%);padding:13px;border-radius:12px;background:rgba(20,22,27,.92);border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:7px">
+                <div style="display:flex;align-items:center;gap:6px;font-size:10px;color:#9aa1b1"><span style="width:14px;height:14px;border-radius:999px;background:#3a4152"></span>u/gece_vardiyasi</div>
+                <div style="font-size:13px;line-height:1.4;color:#f2f4f8">Yarasaların kör olduğu. Gayet iyi görüyorlar — ekolokasyon sadece fazladan bir duyu.</div>
+              </div>
+              <div style="position:absolute;left:14px;bottom:14px;font-size:10px;color:rgba(255,255,255,.65);font-family:var(--rv-font-mono)">kart 4 / 7 · 00:31</div>
+            </div>
+          </div>
+          <div style="flex:none;border-top:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+            <div data-component="LogConsole" style="display:flex;align-items:center;gap:8px;height:36px;padding:0 16px;font-size:12px;color:var(--rv-text-muted)"><i data-lucide="chevron-down" style="width:14px;height:14px"></i>Ayrıntılı günlük<span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint);font-family:var(--rv-font-mono)">142 satır</span><i data-lucide="copy" style="width:14px;height:14px;color:var(--rv-text-faint)"></i></div>
+            <div style="height:158px;overflow:auto;padding:10px 16px 14px;background:var(--rv-bg-inset);font-family:var(--rv-font-mono);font-size:11.5px;line-height:1.75;color:var(--rv-text-muted)">
+              <div><span style="color:var(--rv-text-faint)">14:28:41</span>  gönderi çekildi · 24 yorum · 7 seçili</div>
+              <div><span style="color:var(--rv-text-faint)">14:28:44</span>  çeviri tamamlandı · 812 karakter · 1,8 sn</div>
+              <div><span style="color:var(--rv-text-faint)">14:29:02</span>  tts elevenlabs · derya · 7 parça</div>
+              <div><span style="color:var(--rv-text-faint)">14:29:38</span>  ses birleştirildi · 00:64.320</div>
+              <div><span style="color:var(--rv-text-faint)">14:29:39</span>  kart 3/7 üretildi · 1080x1920</div>
+              <div><span style="color:var(--rv-text-faint)">14:29:52</span>  kart 4/7 üretiliyor…</div>
+            </div>
+          </div>
+        </div>
+        <div data-component="StepProgress" style="width:340px;flex:none;border-left:1px solid var(--rv-border);padding:18px;display:flex;flex-direction:column;gap:2px;overflow:auto">
+          <div style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase;padding-bottom:10px">Aşamalar</div>
+          <div style="display:flex;gap:10px;padding:10px 8px"><span style="width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:999px;background:var(--rv-success-soft);color:var(--rv-success)"><i data-lucide="check" style="width:12px;height:12px"></i></span><div style="display:flex;flex-direction:column;gap:2px;flex:1"><span style="color:var(--rv-text-muted)">Gönderi çekiliyor</span></div><span style="font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums">3,1 sn</span></div>
+          <div style="display:flex;gap:10px;padding:10px 8px"><span style="width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:999px;background:var(--rv-success-soft);color:var(--rv-success)"><i data-lucide="check" style="width:12px;height:12px"></i></span><div style="flex:1;color:var(--rv-text-muted)">Çeviri</div><span style="font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums">1,8 sn</span></div>
+          <div style="display:flex;gap:10px;padding:10px 8px"><span style="width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:999px;background:var(--rv-success-soft);color:var(--rv-success)"><i data-lucide="check" style="width:12px;height:12px"></i></span><div style="flex:1;color:var(--rv-text-muted)">Seslendirme</div><span style="font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums">36 sn</span></div>
+          <div style="display:flex;gap:10px;padding:12px 10px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);border:1px solid rgba(63,191,143,.3)">
+            <span style="width:18px;height:18px;flex:none;border-radius:999px;border:2px solid var(--rv-accent);border-top-color:transparent;animation:rv-pulse 1.2s linear infinite"></span>
+            <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;align-items:baseline"><span style="font-weight:500">Kartlar oluşturuluyor</span><span style="margin-left:auto;font-size:11px;font-variant-numeric:tabular-nums;color:var(--rv-accent-quiet)">%57</span></div>
+              <div style="height:4px;border-radius:999px;background:rgba(0,0,0,.28);overflow:hidden"><div style="width:57%;height:100%;background:var(--rv-accent)"></div></div>
+              <span style="font-size:11px;color:var(--rv-text-muted)">4 / 7 kart · ortalama 12 sn</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;padding:10px 8px;opacity:.5"><span style="width:18px;height:18px;flex:none;border-radius:999px;border:1px solid var(--rv-border-strong)"></span><div style="flex:1">Arka plan hazırlanıyor</div></div>
+          <div style="display:flex;gap:10px;padding:10px 8px;opacity:.5"><span style="width:18px;height:18px;flex:none;border-radius:999px;border:1px solid var(--rv-border-strong)"></span><div style="flex:1">Video render ediliyor</div></div>
+          <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px;padding-top:16px;border-top:1px solid var(--rv-border);font-size:12px;color:var(--rv-text-faint)">
+            <div style="display:flex"><span>Çözünürlük</span><span style="margin-left:auto;color:var(--rv-text-muted);font-family:var(--rv-font-mono)">1080×1920 · 30 fps</span></div>
+            <div style="display:flex"><span>Ses</span><span style="margin-left:auto;color:var(--rv-text-muted)">ElevenLabs · Derya</span></div>
+            <div style="display:flex"><span>Çıktı klasörü</span><span style="margin-left:auto;color:var(--rv-text-muted);font-family:var(--rv-font-mono)">~/Movies/RVMaker</span></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- 07 -->
+<div id="1g" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">07-render-hata</span><span style="font-size:11px;color:#5f6675">1280 × 832 · Hata hâli</span></div>
+<div style="width:1280px;height:832px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+  <header style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">Üretim · durdu</span>
+  </header>
+  <div style="flex:1;display:flex;min-height:0">
+    <aside style="width:220px;flex:none;display:flex;flex-direction:column;padding:8px;border-right:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-weight:500"><i data-lucide="plus" style="width:16px;height:16px"></i>Yeni Video</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="list-ordered" style="width:16px;height:16px"></i>Kuyruk<span style="margin-left:auto;width:6px;height:6px;border-radius:999px;background:var(--rv-danger)"></span></div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="library" style="width:16px;height:16px"></i>Kitaplık</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="settings" style="width:16px;height:16px"></i>Ayarlar</div>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:6px;padding:10px 8px 4px;border-top:1px solid var(--rv-border);font-size:11px;color:var(--rv-text-faint)"><span style="width:6px;height:6px;border-radius:999px;background:var(--rv-success);flex:none"></span>ffmpeg hazır · Python 3.12</div>
+    </aside>
+    <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+      <div style="flex:none;display:flex;align-items:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--rv-border)">
+        <div style="display:flex;flex-direction:column;gap:6px;flex:1">
+          <div style="display:flex;align-items:baseline;gap:10px"><span style="font-weight:600;font-size:15px">Üretim durdu</span><span style="font-size:12px;color:var(--rv-text-faint)">Seslendirme aşamasında · 14:31</span><span style="margin-left:auto;font-variant-numeric:tabular-nums;font-weight:600;color:var(--rv-text-muted)">%34</span></div>
+          <div style="height:5px;border-radius:999px;background:var(--rv-bg-inset);overflow:hidden"><div style="width:34%;height:100%;background:var(--rv-danger);border-radius:999px"></div></div>
+        </div>
+      </div>
+      <div style="flex:1;display:flex;min-height:0">
+        <div style="flex:1;min-width:0;overflow:auto;padding:24px;display:flex;flex-direction:column;gap:18px">
+          <div style="display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid rgba(240,97,109,.35)">
+            <div style="display:flex;gap:12px">
+              <span style="width:26px;height:26px;flex:none;display:grid;place-items:center;border-radius:var(--rv-radius-sm);background:var(--rv-danger-soft);color:var(--rv-danger)"><i data-lucide="alert-circle" style="width:15px;height:15px"></i></span>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <span style="font-size:15px;font-weight:600">Seslendirme tamamlanamadı</span>
+                <span style="color:var(--rv-text-muted);line-height:1.55;text-wrap:pretty">ElevenLabs bu ay için ayrılan karakter kotanı doldurmuş görünüyor. Başka bir motor seçebilir ya da kota yenilendikten sonra tekrar deneyebilirsin. Seçtiğin yorumlar ve çeviriler kayıtlı, baştan başlaman gerekmiyor.</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding-left:38px">
+              <button style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 14px;border-radius:var(--rv-radius-sm);background:var(--rv-accent);color:#fff;border:1px solid transparent;font:500 13px/1 var(--rv-font);cursor:pointer"><i data-lucide="rotate-cw" style="width:14px;height:14px"></i>Tekrar dene</button>
+              <button style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 14px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);color:var(--rv-text);border:1px solid var(--rv-border-strong);font:500 13px/1 var(--rv-font);cursor:pointer"><i data-lucide="sliders-horizontal" style="width:14px;height:14px"></i>Ayarları düzenle</button>
+              <button style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:var(--rv-radius-sm);background:transparent;color:var(--rv-text-muted);border:1px solid transparent;font:500 13px/1 var(--rv-font);cursor:pointer"><i data-lucide="copy" style="width:14px;height:14px"></i>Günlüğü kopyala</button>
+              <a href="#1g" style="margin-left:6px;font-size:12px;display:inline-flex;align-items:center;gap:4px">Teknik ayrıntıyı göster<i data-lucide="chevron-down" style="width:13px;height:13px"></i></a>
+            </div>
+            <div style="margin-left:38px;padding:10px 12px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-family:var(--rv-font-mono);font-size:11.5px;line-height:1.75;color:var(--rv-text-muted)">
+              <div>POST /v1/text-to-speech/derya → 401</div>
+              <div>{"detail":{"status":"quota_exceeded","remaining":0}}</div>
+              <div style="color:var(--rv-text-faint)">tts_engine.py:118 · deneme 3/3 · 14:31:07</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:340px;flex:none;border-left:1px solid var(--rv-border);padding:18px;display:flex;flex-direction:column;gap:2px">
+          <div style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase;padding-bottom:10px">Aşamalar</div>
+          <div style="display:flex;gap:10px;padding:10px 8px"><span style="width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:999px;background:var(--rv-success-soft);color:var(--rv-success)"><i data-lucide="check" style="width:12px;height:12px"></i></span><div style="flex:1;color:var(--rv-text-muted)">Gönderi çekiliyor</div><span style="font-size:11px;color:var(--rv-text-faint)">3,1 sn</span></div>
+          <div style="display:flex;gap:10px;padding:10px 8px"><span style="width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:999px;background:var(--rv-success-soft);color:var(--rv-success)"><i data-lucide="check" style="width:12px;height:12px"></i></span><div style="flex:1;color:var(--rv-text-muted)">Çeviri</div><span style="font-size:11px;color:var(--rv-text-faint)">1,8 sn</span></div>
+          <div style="display:flex;gap:10px;padding:12px 10px;border-radius:var(--rv-radius-sm);background:var(--rv-danger-soft);border:1px solid rgba(240,97,109,.3)">
+            <span style="width:18px;height:18px;flex:none;display:grid;place-items:center;border-radius:999px;background:var(--rv-danger);color:#fff"><i data-lucide="x" style="width:12px;height:12px"></i></span>
+            <div style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-weight:500">Seslendirme</span><span style="font-size:11px;color:var(--rv-text-muted)">3 parçadan sonra durdu</span></div>
+          </div>
+          <div style="display:flex;gap:10px;padding:10px 8px;opacity:.5"><span style="width:18px;height:18px;flex:none;border-radius:999px;border:1px solid var(--rv-border-strong)"></span><div style="flex:1">Kartlar oluşturuluyor</div></div>
+          <div style="display:flex;gap:10px;padding:10px 8px;opacity:.5"><span style="width:18px;height:18px;flex:none;border-radius:999px;border:1px solid var(--rv-border-strong)"></span><div style="flex:1">Arka plan hazırlanıyor</div></div>
+          <div style="display:flex;gap:10px;padding:10px 8px;opacity:.5"><span style="width:18px;height:18px;flex:none;border-radius:999px;border:1px solid var(--rv-border-strong)"></span><div style="flex:1">Video render ediliyor</div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- 08 -->
+<div id="1h" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">08-kitaplik-dolu</span><span style="font-size:11px;color:#5f6675">1280 × 832 · Ayrıntı paneli açık</span></div>
+<div style="width:1280px;height:832px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+  <header style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">Kitaplık</span>
+  </header>
+  <div style="flex:1;display:flex;min-height:0">
+    <aside style="width:220px;flex:none;display:flex;flex-direction:column;padding:8px;border-right:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="plus" style="width:16px;height:16px"></i>Yeni Video</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="list-ordered" style="width:16px;height:16px"></i>Kuyruk</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-weight:500"><i data-lucide="library" style="width:16px;height:16px"></i>Kitaplık<span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums">36</span></div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="settings" style="width:16px;height:16px"></i>Ayarlar</div>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:6px;padding:10px 8px 4px;border-top:1px solid var(--rv-border);font-size:11px;color:var(--rv-text-faint)"><span style="width:6px;height:6px;border-radius:999px;background:var(--rv-success);flex:none"></span>ffmpeg hazır · Python 3.12</div>
+    </aside>
+    <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+      <div style="flex:none;display:flex;align-items:center;gap:8px;height:48px;padding:0 20px;border-bottom:1px solid var(--rv-border)">
+        <div style="display:flex;align-items:center;gap:8px;width:260px;height:30px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-accent);box-shadow:var(--rv-focus)"><i data-lucide="search" style="width:14px;height:14px;color:var(--rv-text-faint)"></i><span style="color:var(--rv-text-faint);font-size:12px">Başlık veya subreddit ara</span></div>
+        <div style="display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border);font-size:12px;color:var(--rv-text-muted)">Tüm subredditler<i data-lucide="chevron-down" style="width:13px;height:13px"></i></div>
+        <div style="display:flex;align-items:center;gap:6px;height:30px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border);font-size:12px;color:var(--rv-text-muted)">Son 30 gün<i data-lucide="chevron-down" style="width:13px;height:13px"></i></div>
+        <span style="margin-left:auto;font-size:12px;color:var(--rv-text-faint)">36 video · 4,2 GB</span>
+      </div>
+      <div style="flex:1;display:flex;min-height:0">
+        <div style="flex:1;min-width:0;overflow:auto;padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-content:start">
+          <div data-component="LibraryCard" style="display:flex;flex-direction:column;gap:8px">
+            <div style="aspect-ratio:9/16;border-radius:var(--rv-radius-md);border:2px solid var(--rv-accent);background:repeating-linear-gradient(135deg,#2a3140 0 6px,#232937 6px 12px);position:relative;overflow:hidden"><span style="position:absolute;right:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:rgba(10,11,15,.75);font-size:10px;font-family:var(--rv-font-mono);color:#e8eaf0">1:04</span></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;line-height:1.4;font-weight:500">En çok yanılınan şey nedir?</span><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--rv-text-faint)"><span style="padding:1px 6px;border-radius:var(--rv-radius-pill);background:var(--rv-bg-elevated);border:1px solid var(--rv-border)">r/AskReddit</span><span>bugün</span><span>· 42 MB</span></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="aspect-ratio:9/16;border-radius:var(--rv-radius-md);border:1px solid var(--rv-border);background:repeating-linear-gradient(135deg,#242b3a 0 6px,#1e2431 6px 12px);position:relative;overflow:hidden"><span style="position:absolute;right:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:rgba(10,11,15,.75);font-size:10px;font-family:var(--rv-font-mono);color:#e8eaf0">0:58</span></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;line-height:1.4">Bugün işyerinde yaptığım hata</span><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--rv-text-faint)"><span style="padding:1px 6px;border-radius:var(--rv-radius-pill);background:var(--rv-bg-elevated);border:1px solid var(--rv-border)">r/tifu</span><span>dün</span><span>· 38 MB</span></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="aspect-ratio:9/16;border-radius:var(--rv-radius-md);border:1px solid var(--rv-border);background:repeating-linear-gradient(135deg,#242b3a 0 6px,#1e2431 6px 12px);position:relative;overflow:hidden"><span style="position:absolute;right:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:rgba(10,11,15,.75);font-size:10px;font-family:var(--rv-font-mono);color:#e8eaf0">1:22</span></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;line-height:1.4">En tuhaf iş görüşmesi soruları</span><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--rv-text-faint)"><span style="padding:1px 6px;border-radius:var(--rv-radius-pill);background:var(--rv-bg-elevated);border:1px solid var(--rv-border)">r/AskReddit</span><span>3 gün</span><span>· 51 MB</span></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="aspect-ratio:9/16;border-radius:var(--rv-radius-md);border:1px solid var(--rv-border);background:repeating-linear-gradient(135deg,#242b3a 0 6px,#1e2431 6px 12px);position:relative;overflow:hidden"><span style="position:absolute;right:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:rgba(10,11,15,.75);font-size:10px;font-family:var(--rv-font-mono);color:#e8eaf0">0:47</span></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;line-height:1.4">Komşum her gece aynı şeyi yapıyor</span><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--rv-text-faint)"><span style="padding:1px 6px;border-radius:var(--rv-radius-pill);background:var(--rv-bg-elevated);border:1px solid var(--rv-border)">r/relationships</span><span>5 gün</span><span>· 31 MB</span></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="aspect-ratio:9/16;border-radius:var(--rv-radius-md);border:1px solid var(--rv-border);background:repeating-linear-gradient(135deg,#242b3a 0 6px,#1e2431 6px 12px);position:relative;overflow:hidden"><span style="position:absolute;right:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:rgba(10,11,15,.75);font-size:10px;font-family:var(--rv-font-mono);color:#e8eaf0">1:11</span></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;line-height:1.4">Yıllardır sakladığım küçük sır</span><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--rv-text-faint)"><span style="padding:1px 6px;border-radius:var(--rv-radius-pill);background:var(--rv-bg-elevated);border:1px solid var(--rv-border)">r/confession</span><span>1 hafta</span><span>· 44 MB</span></div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="aspect-ratio:9/16;border-radius:var(--rv-radius-md);border:1px solid var(--rv-border);background:repeating-linear-gradient(135deg,#242b3a 0 6px,#1e2431 6px 12px);position:relative;overflow:hidden"><span style="position:absolute;right:6px;bottom:6px;padding:2px 6px;border-radius:4px;background:rgba(10,11,15,.75);font-size:10px;font-family:var(--rv-font-mono);color:#e8eaf0">1:36</span></div>
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;line-height:1.4">Meslek hayatının en garip günü</span><div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--rv-text-faint)"><span style="padding:1px 6px;border-radius:var(--rv-radius-pill);background:var(--rv-bg-elevated);border:1px solid var(--rv-border)">r/talesfromwork</span><span>1 hafta</span><span>· 62 MB</span></div></div>
+          </div>
+        </div>
+        <div style="width:320px;flex:none;border-left:1px solid var(--rv-border);background:var(--rv-bg-surface);display:flex;flex-direction:column;overflow:auto">
+          <div style="padding:16px;display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;align-items:center"><span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Ayrıntılar</span><i data-lucide="x" style="width:14px;height:14px;margin-left:auto;color:var(--rv-text-faint)"></i></div>
+            <div style="width:100%;aspect-ratio:9/16;max-height:300px;border-radius:var(--rv-radius-md);border:1px solid var(--rv-border-strong);background:repeating-linear-gradient(135deg,#2a3140 0 8px,#232937 8px 16px);align-self:center;position:relative;overflow:hidden"><span style="position:absolute;inset:0;display:grid;place-items:center"><span style="width:38px;height:38px;display:grid;place-items:center;border-radius:999px;background:rgba(10,11,15,.6);border:1px solid rgba(255,255,255,.14);color:#fff"><i data-lucide="play" style="width:16px;height:16px"></i></span></span></div>
+            <div style="font-size:14px;font-weight:600;line-height:1.4">En çok yanılınan şey nedir?</div>
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:12px">
+              <div style="display:flex;gap:12px"><span style="color:var(--rv-text-faint);width:88px">Kaynak</span><a href="#1h" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--rv-font-mono);font-size:11px">r/AskReddit/1f2k9x</a></div>
+              <div style="display:flex;gap:12px"><span style="color:var(--rv-text-faint);width:88px">Ses</span><span style="color:var(--rv-text-muted)">ElevenLabs · Derya</span></div>
+              <div style="display:flex;gap:12px"><span style="color:var(--rv-text-faint);width:88px">Arka plan</span><span style="color:var(--rv-text-muted)">Minecraft · Lo-fi %18</span></div>
+              <div style="display:flex;gap:12px"><span style="color:var(--rv-text-faint);width:88px">Çıktı</span><span style="color:var(--rv-text-muted);font-family:var(--rv-font-mono);font-size:11px">1080×1920 · 30 fps</span></div>
+              <div style="display:flex;gap:12px"><span style="color:var(--rv-text-faint);width:88px">Boyut</span><span style="color:var(--rv-text-muted)">42 MB · 1:04</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;padding-top:6px;border-top:1px solid var(--rv-border)">
+              <button style="display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border);color:var(--rv-text);font:500 13px/1 var(--rv-font);cursor:pointer"><i data-lucide="folder-open" style="width:15px;height:15px;color:var(--rv-text-muted)"></i>Finder'da göster</button>
+              <button style="display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border);color:var(--rv-text);font:500 13px/1 var(--rv-font);cursor:pointer"><i data-lucide="rotate-cw" style="width:15px;height:15px;color:var(--rv-text-muted)"></i>Yeniden üret</button>
+              <button style="display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:var(--rv-radius-sm);background:transparent;border:1px solid transparent;color:var(--rv-danger);font:500 13px/1 var(--rv-font);cursor:pointer"><i data-lucide="trash-2" style="width:15px;height:15px"></i>Sil</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- 09 -->
+<div id="1i" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">09-kitaplik-bos</span><span style="font-size:11px;color:#5f6675">1280 × 832 · EmptyState</span></div>
+<div style="width:1280px;height:832px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+  <header style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">Kitaplık</span>
+  </header>
+  <div style="flex:1;display:flex;min-height:0">
+    <aside style="width:220px;flex:none;display:flex;flex-direction:column;padding:8px;border-right:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="plus" style="width:16px;height:16px"></i>Yeni Video</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="list-ordered" style="width:16px;height:16px"></i>Kuyruk</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-weight:500"><i data-lucide="library" style="width:16px;height:16px"></i>Kitaplık</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="settings" style="width:16px;height:16px"></i>Ayarlar</div>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:6px;padding:10px 8px 4px;border-top:1px solid var(--rv-border);font-size:11px;color:var(--rv-text-faint)"><span style="width:6px;height:6px;border-radius:999px;background:var(--rv-success);flex:none"></span>ffmpeg hazır · Python 3.12</div>
+    </aside>
+    <main data-component="EmptyState" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px">
+      <div style="width:92px;height:120px;border-radius:var(--rv-radius-md);border:1px dashed var(--rv-border-strong);display:grid;place-items:center;color:var(--rv-text-faint)"><i data-lucide="film" style="width:26px;height:26px"></i></div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;max-width:360px;text-align:center">
+        <div style="font-size:15px;font-weight:600">Kitaplık henüz boş</div>
+        <div style="color:var(--rv-text-muted);line-height:1.55">Ürettiğin videolar burada toplanır; buradan izleyebilir, yeniden üretebilir veya dışa aktarabilirsin.</div>
+      </div>
+      <button style="display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 16px;border-radius:var(--rv-radius-sm);background:var(--rv-accent);color:#fff;border:1px solid transparent;font:600 13px/1 var(--rv-font);cursor:pointer;box-shadow:var(--rv-focus)"><i data-lucide="plus" style="width:15px;height:15px"></i>İlk videonu oluştur</button>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- 10 -->
+<div id="1j" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">10-kuyruk</span><span style="font-size:11px;color:#5f6675">1280 × 832 · Toplu üretim</span></div>
+<div style="width:1280px;height:832px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+  <header style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">Kuyruk</span>
+  </header>
+  <div style="flex:1;display:flex;min-height:0">
+    <aside style="width:220px;flex:none;display:flex;flex-direction:column;padding:8px;border-right:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="plus" style="width:16px;height:16px"></i>Yeni Video</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-weight:500"><i data-lucide="list-ordered" style="width:16px;height:16px"></i>Kuyruk<span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums">5</span></div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="library" style="width:16px;height:16px"></i>Kitaplık</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="settings" style="width:16px;height:16px"></i>Ayarlar</div>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:6px;padding:10px 8px 4px;border-top:1px solid var(--rv-border);font-size:11px;color:var(--rv-text-faint)"><span style="width:6px;height:6px;border-radius:999px;background:var(--rv-success);flex:none"></span>ffmpeg hazır · Python 3.12</div>
+    </aside>
+    <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+      <div style="flex:none;display:flex;align-items:center;gap:10px;height:52px;padding:0 20px;border-bottom:1px solid var(--rv-border)">
+        <button style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 14px;border-radius:var(--rv-radius-sm);background:var(--rv-accent);color:#fff;border:1px solid transparent;font:500 13px/1 var(--rv-font);cursor:pointer"><i data-lucide="play" style="width:14px;height:14px"></i>Tümünü başlat</button>
+        <button style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 14px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);color:var(--rv-text);border:1px solid var(--rv-border-strong);font:500 13px/1 var(--rv-font);cursor:pointer"><i data-lucide="pause" style="width:14px;height:14px"></i>Duraklat</button>
+        <div style="width:1px;height:20px;background:var(--rv-border);margin:0 4px"></div>
+        <span style="font-size:12px;color:var(--rv-text-muted)">Eşzamanlı iş</span>
+        <div style="display:flex;padding:2px;gap:2px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-size:12px;font-variant-numeric:tabular-nums">
+          <span style="padding:4px 11px;border-radius:4px;background:var(--rv-bg-elevated);color:var(--rv-text);font-weight:500">1</span>
+          <span style="padding:4px 11px;border-radius:4px;color:var(--rv-text-muted)">2</span>
+          <span style="padding:4px 11px;border-radius:4px;color:var(--rv-text-muted)">3</span>
+        </div>
+        <span style="margin-left:auto;font-size:12px;color:var(--rv-text-faint)">2 bekliyor · 1 çalışıyor · toplam ~9 dk</span>
+      </div>
+      <div style="flex:1;overflow:auto;padding:16px 20px;display:flex;flex-direction:column;gap:6px">
+        <div data-component="QueueRow" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid rgba(63,191,143,.32)">
+          <i data-lucide="grip-vertical" style="width:14px;height:14px;color:var(--rv-text-faint)"></i>
+          <span style="width:18px;font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-faint)">1</span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">En tuhaf iş görüşmesi soruları</span><span style="font-size:11px;color:var(--rv-text-faint);flex:none">Hızlı TR · Derya · Minecraft</span></div>
+            <div style="height:4px;border-radius:999px;background:var(--rv-bg-inset);overflow:hidden"><div style="width:58%;height:100%;background:var(--rv-accent)"></div></div>
+            <span style="font-size:11px;color:var(--rv-text-muted)">Kartlar oluşturuluyor · 4/7 · kalan ~2 dk</span>
+          </div>
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:var(--rv-radius-pill);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-size:11px;font-weight:500">Çalışıyor</span>
+          <i data-lucide="more-horizontal" style="width:16px;height:16px;color:var(--rv-text-faint)"></i>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+          <i data-lucide="grip-vertical" style="width:14px;height:14px;color:var(--rv-text-faint)"></i>
+          <span style="width:18px;font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-faint)">2</span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Komşum her gece aynı şeyi yapıyor</span><span style="font-size:11px;color:var(--rv-text-faint)">Anlatıcı · Kerem · Gradyan · 12 yorum</span></div>
+          <span style="padding:3px 9px;border-radius:var(--rv-radius-pill);background:var(--rv-bg-elevated);border:1px solid var(--rv-border);color:var(--rv-text-muted);font-size:11px">Bekliyor</span>
+          <i data-lucide="more-horizontal" style="width:16px;height:16px;color:var(--rv-text-faint)"></i>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+          <i data-lucide="grip-vertical" style="width:14px;height:14px;color:var(--rv-text-faint)"></i>
+          <span style="width:18px;font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-faint)">3</span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Yıllardır sakladığım küçük sır</span><span style="font-size:11px;color:var(--rv-text-faint)">Hızlı TR · Derya · Sörf · 8 yorum</span></div>
+          <span style="padding:3px 9px;border-radius:var(--rv-radius-pill);background:var(--rv-bg-elevated);border:1px solid var(--rv-border);color:var(--rv-text-muted);font-size:11px">Bekliyor</span>
+          <i data-lucide="more-horizontal" style="width:16px;height:16px;color:var(--rv-text-faint)"></i>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+          <i data-lucide="grip-vertical" style="width:14px;height:14px;color:var(--rv-text-faint)"></i>
+          <span style="width:18px;font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-faint)">4</span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Bugün işyerinde yaptığım hata</span><span style="font-size:11px;color:var(--rv-danger)">ElevenLabs kotası doldu · 14:31</span></div>
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border-radius:var(--rv-radius-pill);background:var(--rv-danger-soft);color:var(--rv-danger);font-size:11px;font-weight:500">Hata</span>
+          <button style="height:26px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border-strong);color:var(--rv-text);font:500 12px/1 var(--rv-font);cursor:pointer">Tekrar dene</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--rv-radius-md);border:1px solid transparent;opacity:.72">
+          <i data-lucide="grip-vertical" style="width:14px;height:14px;color:var(--rv-text-faint)"></i>
+          <span style="width:18px;font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-faint)">5</span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">En çok yanılınan şey nedir?</span><span style="font-size:11px;color:var(--rv-text-faint)">1:04 · 42 MB · ~/Movies/RVMaker</span></div>
+          <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:var(--rv-radius-pill);background:var(--rv-success-soft);color:var(--rv-success);font-size:11px;font-weight:500"><i data-lucide="check" style="width:11px;height:11px"></i>Bitti</span>
+          <i data-lucide="folder-open" style="width:16px;height:16px;color:var(--rv-text-faint)"></i>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- 11 -->
+<div id="1k" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">11-ayarlar-tts</span><span style="font-size:11px;color:#5f6675">1280 × 832 · SettingsTabs</span></div>
+<div style="width:1280px;height:832px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+  <header style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">Ayarlar · Seslendirme</span>
+  </header>
+  <div style="flex:1;display:flex;min-height:0">
+    <aside style="width:220px;flex:none;display:flex;flex-direction:column;padding:8px;border-right:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="plus" style="width:16px;height:16px"></i>Yeni Video</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="list-ordered" style="width:16px;height:16px"></i>Kuyruk</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="library" style="width:16px;height:16px"></i>Kitaplık</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-weight:500"><i data-lucide="settings" style="width:16px;height:16px"></i>Ayarlar</div>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:6px;padding:10px 8px 4px;border-top:1px solid var(--rv-border);font-size:11px;color:var(--rv-text-faint)"><span style="width:6px;height:6px;border-radius:999px;background:var(--rv-success);flex:none"></span>ffmpeg hazır · Python 3.12</div>
+    </aside>
+    <div data-component="SettingsTabs" style="width:184px;flex:none;border-right:1px solid var(--rv-border);padding:16px 10px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase;padding:0 8px 10px">Ayarlar</div>
+      <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="sliders-horizontal" style="width:15px;height:15px"></i>Genel</div>
+      <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border);color:var(--rv-text);font-weight:500"><i data-lucide="mic" style="width:15px;height:15px;color:var(--rv-accent-quiet)"></i>Seslendirme</div>
+      <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="languages" style="width:15px;height:15px"></i>Çeviri</div>
+      <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="video" style="width:15px;height:15px"></i>Video</div>
+      <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="terminal" style="width:15px;height:15px"></i>Gelişmiş</div>
+    </div>
+    <main style="flex:1;min-width:0;overflow:auto;padding:28px 32px;display:flex;flex-direction:column;gap:26px;max-width:720px">
+      <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:17px;font-weight:600">Seslendirme</span><span style="color:var(--rv-text-muted)">Varsayılan motor ve ses, tüm yeni videolarda kullanılır.</span></div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">API anahtarları</span>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:12px;color:var(--rv-text-muted)">ElevenLabs</label>
+          <div style="display:flex;gap:8px">
+            <div style="flex:1;display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text)">••••••••••••••••••••••••3f9a<i data-lucide="eye" style="width:14px;height:14px;margin-left:auto;color:var(--rv-text-faint)"></i></div>
+            <button style="height:32px;padding:0 12px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border-strong);color:var(--rv-text);font:500 12px/1 var(--rv-font);cursor:pointer">Bağlantıyı test et</button>
+          </div>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--rv-success)"><i data-lucide="check" style="width:12px;height:12px"></i>Bağlantı doğrulandı · 14:02</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:12px;color:var(--rv-text-muted)">OpenAI</label>
+          <div style="display:flex;gap:8px">
+            <div style="flex:1;display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-danger);font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-faint)">sk-…<i data-lucide="eye-off" style="width:14px;height:14px;margin-left:auto;color:var(--rv-text-faint)"></i></div>
+            <button style="height:32px;padding:0 12px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border-strong);color:var(--rv-text);font:500 12px/1 var(--rv-font);cursor:pointer">Bağlantıyı test et</button>
+          </div>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--rv-danger)"><i data-lucide="alert-circle" style="width:12px;height:12px"></i>Anahtar geçersiz veya eksik.</span>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-surface);border:1px solid var(--rv-border);font-size:12px;color:var(--rv-text-muted);line-height:1.55">
+          <i data-lucide="lock" style="width:14px;height:14px;color:var(--rv-text-faint);flex:none;margin-top:2px"></i>Anahtarlar yalnızca bu bilgisayarda, sistem anahtar zincirinde saklanır; hiçbir sunucuya gönderilmez.
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;padding-top:20px;border-top:1px solid var(--rv-border)">
+        <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Varsayılanlar</span>
+        <div style="display:flex;align-items:center;gap:16px"><span style="width:160px;color:var(--rv-text-muted)">Varsayılan motor</span><div style="flex:1;max-width:300px;display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-accent);box-shadow:var(--rv-focus)">ElevenLabs<i data-lucide="chevron-down" style="width:14px;height:14px;margin-left:auto;color:var(--rv-text-faint)"></i></div></div>
+        <div style="display:flex;align-items:center;gap:16px"><span style="width:160px;color:var(--rv-text-muted)">Varsayılan ses</span><div style="flex:1;max-width:300px;display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border)">Derya · Kadın · TR<i data-lucide="chevron-down" style="width:14px;height:14px;margin-left:auto;color:var(--rv-text-faint)"></i></div></div>
+        <div style="display:flex;align-items:center;gap:16px"><span style="width:160px;color:var(--rv-text-muted)">Kota bitince yedek motor</span><div style="width:34px;height:20px;border-radius:999px;background:var(--rv-accent);display:flex;align-items:center;padding:2px;box-sizing:border-box"><span style="margin-left:auto;width:16px;height:16px;border-radius:999px;background:#fff"></span></div><span style="font-size:12px;color:var(--rv-text-faint)">Google Translate'e düş</span></div>
+      </div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- 12 -->
+<div id="1l" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">12-ayarlar-video</span><span style="font-size:11px;color:#5f6675">1280 × 832</span></div>
+<div style="width:1280px;height:832px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+  <header style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">Ayarlar · Video</span>
+  </header>
+  <div style="flex:1;display:flex;min-height:0">
+    <aside style="width:220px;flex:none;display:flex;flex-direction:column;padding:8px;border-right:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="plus" style="width:16px;height:16px"></i>Yeni Video</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="list-ordered" style="width:16px;height:16px"></i>Kuyruk</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="library" style="width:16px;height:16px"></i>Kitaplık</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-weight:500"><i data-lucide="settings" style="width:16px;height:16px"></i>Ayarlar</div>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:6px;padding:10px 8px 4px;border-top:1px solid var(--rv-border);font-size:11px;color:var(--rv-text-faint)"><span style="width:6px;height:6px;border-radius:999px;background:var(--rv-success);flex:none"></span>ffmpeg hazır · Python 3.12</div>
+    </aside>
+    <div style="width:184px;flex:none;border-right:1px solid var(--rv-border);padding:16px 10px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase;padding:0 8px 10px">Ayarlar</div>
+      <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="sliders-horizontal" style="width:15px;height:15px"></i>Genel</div>
+      <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="mic" style="width:15px;height:15px"></i>Seslendirme</div>
+      <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="languages" style="width:15px;height:15px"></i>Çeviri</div>
+      <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border);color:var(--rv-text);font-weight:500"><i data-lucide="video" style="width:15px;height:15px;color:var(--rv-accent-quiet)"></i>Video</div>
+      <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="terminal" style="width:15px;height:15px"></i>Gelişmiş</div>
+    </div>
+    <main style="flex:1;min-width:0;overflow:auto;padding:28px 32px;display:flex;flex-direction:column;gap:24px;max-width:720px">
+      <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:17px;font-weight:600">Video</span><span style="color:var(--rv-text-muted)">Çıktı biçimi ve dosya yönetimi.</span></div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;gap:16px"><span style="width:170px;color:var(--rv-text-muted)">Çözünürlük</span><div style="flex:1;max-width:280px;display:flex;align-items:center;height:32px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border)">1080 × 1920 (9:16)<i data-lucide="chevron-down" style="width:14px;height:14px;margin-left:auto;color:var(--rv-text-faint)"></i></div></div>
+        <div style="display:flex;align-items:center;gap:16px"><span style="width:170px;color:var(--rv-text-muted)">Kare hızı</span><div style="display:flex;padding:2px;gap:2px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-size:12px;font-variant-numeric:tabular-nums"><span style="padding:4px 12px;border-radius:4px;color:var(--rv-text-muted)">24</span><span style="padding:4px 12px;border-radius:4px;background:var(--rv-bg-elevated);color:var(--rv-text);font-weight:500">30</span><span style="padding:4px 12px;border-radius:4px;color:var(--rv-text-muted)">60</span></div></div>
+        <div style="display:flex;align-items:center;gap:16px"><span style="width:170px;color:var(--rv-text-muted)">Kodek</span><div style="flex:1;max-width:280px;display:flex;align-items:center;height:32px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-family:var(--rv-font-mono);font-size:12px">H.264 · yuv420p<i data-lucide="chevron-down" style="width:14px;height:14px;margin-left:auto;color:var(--rv-text-faint)"></i></div></div>
+        <div style="display:flex;align-items:center;gap:16px"><span style="width:170px;color:var(--rv-text-muted)">Bit hızı</span><div style="flex:1;max-width:280px;display:flex;align-items:center;gap:10px"><div style="flex:1;height:4px;border-radius:999px;background:var(--rv-bg-inset);position:relative"><div style="width:45%;height:100%;background:var(--rv-accent);border-radius:999px"></div><div style="position:absolute;left:45%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:999px;background:var(--rv-text);border:1px solid var(--rv-border-strong)"></div></div><span style="font-variant-numeric:tabular-nums;font-size:12px;color:var(--rv-text-muted)">8 Mbps</span></div></div>
+        <div style="display:flex;align-items:center;gap:16px"><span style="width:170px;color:var(--rv-text-muted)">Donanım hızlandırma</span><div style="width:34px;height:20px;border-radius:999px;background:var(--rv-accent);display:flex;align-items:center;padding:2px;box-sizing:border-box"><span style="margin-left:auto;width:16px;height:16px;border-radius:999px;background:#fff"></span></div><span style="font-size:12px;color:var(--rv-text-faint)">VideoToolbox · Apple silicon</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;padding-top:20px;border-top:1px solid var(--rv-border)">
+        <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Dosyalar</span>
+        <div style="display:flex;align-items:center;gap:16px"><span style="width:170px;color:var(--rv-text-muted)">Çıktı klasörü</span><div style="flex:1;display:flex;align-items:center;gap:8px;height:32px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-muted)"><i data-lucide="folder" style="width:14px;height:14px"></i>~/Movies/RVMaker</div><button style="height:32px;padding:0 12px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border-strong);color:var(--rv-text);font:500 12px/1 var(--rv-font);cursor:pointer">Değiştir</button></div>
+        <div style="display:flex;align-items:flex-start;gap:16px"><span style="width:170px;color:var(--rv-text-muted);padding-top:8px">Dosya adı şablonu</span><div style="flex:1;display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;height:32px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-family:var(--rv-font-mono);font-size:12px">{tarih}_{subreddit}_{baslik-kisa}</div><span style="font-size:11px;color:var(--rv-text-faint);font-family:var(--rv-font-mono)">2026-09-02_askreddit_en-cok-yanilinan.mp4</span></div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+        <div style="display:flex;align-items:center"><span style="font-weight:500">Bakım</span><span style="margin-left:auto;font-size:12px;color:var(--rv-text-faint)">Geçici dosyalar 3,4 GB · önbellek 480 MB</span></div>
+        <div style="display:flex;gap:8px">
+          <button style="height:30px;padding:0 12px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-elevated);border:1px solid var(--rv-border-strong);color:var(--rv-text);font:500 12px/1 var(--rv-font);cursor:pointer">Geçici dosyaları temizle</button>
+          <button style="height:30px;padding:0 12px;border-radius:var(--rv-radius-sm);background:transparent;border:1px solid var(--rv-border);color:var(--rv-text-muted);font:500 12px/1 var(--rv-font);cursor:pointer">Ses önbelleğini boşalt</button>
+          <button style="margin-left:auto;height:30px;padding:0 12px;border-radius:var(--rv-radius-sm);background:transparent;border:1px solid rgba(240,97,109,.4);color:var(--rv-danger);font:500 12px/1 var(--rv-font);cursor:pointer">Tüm çıktıları sil</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- 13 -->
+<div id="1m" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">13-acik-tema</span><span style="font-size:11px;color:#5f6675">1280 × 832 · 02-yeni-video-kaynak, açık tema</span></div>
+<div data-theme="light" style="width:1280px;height:832px;display:flex;flex-direction:column;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);overflow:hidden;font-family:var(--rv-font);font-size:13px;box-shadow:0 1px 2px rgba(0,0,0,.4),0 10px 28px rgba(0,0,0,.5)">
+  <header style="height:38px;flex:none;display:flex;align-items:center;gap:8px;padding:0 12px;border-bottom:1px solid var(--rv-border);background:var(--rv-bg-surface)">
+    <div style="display:flex;gap:8px;width:66px;flex:none"><span style="width:12px;height:12px;border-radius:999px;background:#ec6a5f"></span><span style="width:12px;height:12px;border-radius:999px;background:#f4bf50"></span><span style="width:12px;height:12px;border-radius:999px;background:#61c454"></span></div>
+    <span style="font-size:12px;font-weight:500;color:var(--rv-text-muted)">Yeni Video</span>
+    <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:var(--rv-text-faint)"><i data-lucide="layers" style="width:14px;height:14px"></i>Kuyrukta 2 iş</span>
+  </header>
+  <div style="flex:1;display:flex;min-height:0">
+    <aside style="width:220px;flex:none;display:flex;flex-direction:column;padding:8px;border-right:1px solid var(--rv-border);background:var(--rv-bg-inset)">
+      <nav style="display:flex;flex-direction:column;gap:2px">
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-surface);border:1px solid var(--rv-border);color:var(--rv-accent);font-weight:500;box-shadow:var(--rv-shadow-1)"><i data-lucide="plus" style="width:16px;height:16px"></i>Yeni Video</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="list-ordered" style="width:16px;height:16px"></i>Kuyruk<span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint);font-variant-numeric:tabular-nums">2</span></div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="library" style="width:16px;height:16px"></i>Kitaplık</div>
+        <div style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--rv-radius-sm);color:var(--rv-text-muted)"><i data-lucide="settings" style="width:16px;height:16px"></i>Ayarlar</div>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:6px;padding:10px 8px 4px;border-top:1px solid var(--rv-border);font-size:11px;color:var(--rv-text-faint)"><span style="width:6px;height:6px;border-radius:999px;background:var(--rv-success);flex:none"></span>ffmpeg hazır · Python 3.12</div>
+    </aside>
+    <main style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:auto;background:var(--rv-bg-base)">
+      <div style="padding:40px 40px 0;display:flex;flex-direction:column;gap:24px;max-width:820px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:20px;font-weight:600;letter-spacing:-.01em">Yeni video</div>
+          <div style="font-size:13px;color:var(--rv-text-muted)">Bir Reddit gönderi bağlantısı yapıştır, gerisini hazır ayar halletsin.</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <div style="flex:1;display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-accent);box-shadow:var(--rv-focus)">
+            <i data-lucide="link" style="width:18px;height:18px;color:var(--rv-text-faint)"></i>
+            <span style="font-size:15px;color:var(--rv-text)">reddit.com/r/AskReddit/comments/1f2k9x/</span><span style="width:1px;height:20px;background:var(--rv-accent);animation:rv-pulse 1s steps(2) infinite"></span>
+          </div>
+          <button style="display:inline-flex;align-items:center;gap:8px;height:48px;padding:0 20px;border-radius:var(--rv-radius-md);background:var(--rv-accent);color:#fff;border:1px solid transparent;font:600 14px/1 var(--rv-font);cursor:pointer">Devam et<i data-lucide="arrow-right" style="width:16px;height:16px"></i></button>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;font-size:12px;color:var(--rv-text-faint)">
+          <span style="display:inline-flex;align-items:center;gap:6px"><i data-lucide="clipboard" style="width:14px;height:14px"></i>Panodan yapıştır <span style="font-family:var(--rv-font-mono);padding:1px 5px;border:1px solid var(--rv-border);border-radius:4px;background:var(--rv-bg-surface)">⌘V</span></span>
+          <span style="display:inline-flex;align-items:center;gap:6px"><i data-lucide="compass" style="width:14px;height:14px"></i><a href="#1m" style="color:var(--rv-accent)">Bir subreddit'ten seç</a></span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:12px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Hazır ayarlar</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+            <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-accent);box-shadow:var(--rv-shadow-1)">
+              <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-weight:500">Hızlı TR</span><span style="width:16px;height:16px;display:grid;place-items:center;border-radius:999px;background:var(--rv-accent);color:#fff"><i data-lucide="check" style="width:11px;height:11px"></i></span></div>
+              <div style="font-size:12px;color:var(--rv-text-muted);line-height:1.5">Türkçe · Kadın ses · Minecraft</div>
+              <div style="display:flex;gap:6px;font-size:11px;color:var(--rv-text-muted)"><span style="padding:2px 6px;border-radius:4px;background:var(--rv-bg-inset)">8 yorum</span><span style="padding:2px 6px;border-radius:4px;background:var(--rv-bg-inset)">~52 sn</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:var(--rv-radius-md);background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+              <div style="font-weight:500">Anlatıcı</div>
+              <div style="font-size:12px;color:var(--rv-text-muted);line-height:1.5">Türkçe · Erkek ses · Gradyan</div>
+              <div style="display:flex;gap:6px;font-size:11px;color:var(--rv-text-muted)"><span style="padding:2px 6px;border-radius:4px;background:var(--rv-bg-inset)">12 yorum</span><span style="padding:2px 6px;border-radius:4px;background:var(--rv-bg-inset)">~78 sn</span></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:var(--rv-radius-md);border:1px dashed var(--rv-border-strong);color:var(--rv-text-faint);font-size:12px"><i data-lucide="plus" style="width:14px;height:14px"></i>Hazır ayar oluştur</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:2px;padding-bottom:40px">
+          <div style="font-size:12px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase;margin-bottom:6px">Son kullanılanlar</div>
+          <div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-surface);border:1px solid var(--rv-border)"><span style="font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">r/tifu/comments/1e8x2m/bugun-isyerinde</span><span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint)">dün</span><i data-lucide="corner-down-left" style="width:14px;height:14px;color:var(--rv-text-faint)"></i></div>
+          <div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:var(--rv-radius-sm)"><span style="font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">r/AskReddit/comments/1d1p0q/en-tuhaf-is-gorusmesi</span><span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint)">3 gün önce</span></div>
+          <div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 10px;border-radius:var(--rv-radius-sm)"><span style="font-family:var(--rv-font-mono);font-size:12px;color:var(--rv-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">r/relationships/comments/1c9v4k/komsum-her-gece</span><span style="margin-left:auto;font-size:11px;color:var(--rv-text-faint)">5 gün önce</span></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- 14 -->
+<div id="1n" style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--rv-font-mono);font-size:12px;color:#a3a9b8">14-tasarim-sistemi</span><span style="font-size:11px;color:#5f6675">1440 genişlik · token'lar, ölçekler, bileşen envanteri</span></div>
+<div style="width:1440px;display:flex;flex-direction:column;gap:32px;padding:32px;box-sizing:border-box;background:var(--rv-bg-base);color:var(--rv-text);border:1px solid var(--rv-border);border-radius:var(--rv-radius-md);font-family:var(--rv-font);font-size:13px;box-shadow:var(--rv-shadow-1)">
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Renk · koyu tema</span>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#14161b;border:1px solid var(--rv-border)"></span>--rv-bg-base<br>#14161B</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#191b21;border:1px solid var(--rv-border)"></span>--rv-bg-surface<br>#191B21</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#1f222a;border:1px solid var(--rv-border)"></span>--rv-bg-elevated<br>#1F222A</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#101116;border:1px solid var(--rv-border)"></span>--rv-bg-inset<br>#101116</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#282c36"></span>--rv-border<br>#282C36</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#3a3f4c"></span>--rv-border-strong<br>#3A3F4C</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#e8eaf0"></span>--rv-text<br>#E8EAF0</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#a3a9b8"></span>--rv-text-muted<br>#A3A9B8 · 7,4:1</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#7d8494"></span>--rv-text-faint<br>#7D8494 · 4,6:1</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#3fbf8f"></span>--rv-accent<br>#3FBF8F</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#7fd9bb"></span>--rv-accent-quiet<br>#7FD9BB</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:rgba(63,191,143,.16);border:1px solid var(--rv-border)"></span>--rv-accent-soft<br>16% alfa</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#4da3e8"></span>--rv-success<br>#4DA3E8</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#e0a341"></span>--rv-warning<br>#E0A341</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:#f0616d"></span>--rv-danger<br>#F0616D</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:var(--rv-radius-sm);background:var(--rv-bg-surface);box-shadow:var(--rv-shadow-1);border:1px solid var(--rv-border)"></span>--rv-shadow-1<br>tek seviye</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Renk · açık tema</span>
+      <div data-theme="light" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;font-family:var(--rv-font-mono);font-size:10.5px;color:#7d8494">
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:6px;background:#f6f7f9;border:1px solid #e3e5ea"></span>--rv-bg-base<br>#F6F7F9</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:6px;background:#ffffff;border:1px solid #e3e5ea"></span>--rv-bg-surface<br>#FFFFFF</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:6px;background:#eff1f4;border:1px solid #e3e5ea"></span>--rv-bg-inset<br>#EFF1F4</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:6px;background:#e3e5ea"></span>--rv-border<br>#E3E5EA</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:6px;background:#c9cdd7"></span>--rv-border-strong<br>#C9CDD7</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:6px;background:#15171d"></span>--rv-text<br>#15171D</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:6px;background:#565c6b"></span>--rv-text-muted<br>#565C6B · 7,1:1</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:6px;background:#767d8d"></span>--rv-text-faint<br>#767D8D · 4,6:1</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:6px;background:#1b8f6a"></span>--rv-accent<br>#1B8F6A</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:6px;background:#2b7fc4"></span>--rv-success<br>#2B7FC4</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:6px;background:#b57616"></span>--rv-warning<br>#B57616</div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="height:44px;border-radius:6px;background:#d13b49"></span>--rv-danger<br>#D13B49</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;padding-top:8px">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Boşluk · 8px ölçek</span>
+          <div style="display:flex;align-items:flex-end;gap:10px;font-family:var(--rv-font-mono);font-size:10px;color:var(--rv-text-faint)">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="width:4px;height:4px;background:var(--rv-accent)"></span>1·4</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="width:8px;height:8px;background:var(--rv-accent)"></span>2·8</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="width:12px;height:12px;background:var(--rv-accent)"></span>3·12</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="width:16px;height:16px;background:var(--rv-accent)"></span>4·16</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="width:24px;height:24px;background:var(--rv-accent)"></span>5·24</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px"><span style="width:32px;height:32px;background:var(--rv-accent)"></span>6·32</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Yarıçap</span>
+          <div style="display:flex;align-items:flex-end;gap:12px;font-family:var(--rv-font-mono);font-size:10px;color:var(--rv-text-faint)">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><span style="width:44px;height:32px;border-radius:6px;background:var(--rv-bg-elevated);border:1px solid var(--rv-border)"></span>sm·6</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><span style="width:44px;height:32px;border-radius:10px;background:var(--rv-bg-elevated);border:1px solid var(--rv-border)"></span>md·10</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px"><span style="width:44px;height:32px;border-radius:999px;background:var(--rv-bg-elevated);border:1px solid var(--rv-border)"></span>pill</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;padding-top:24px;border-top:1px solid var(--rv-border)">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Tipografi · Inter</span>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:baseline;gap:16px"><span style="width:120px;font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">title/20·600</span><span style="font-size:20px;font-weight:600;letter-spacing:-.01em">Yeni video oluştur</span></div>
+        <div style="display:flex;align-items:baseline;gap:16px"><span style="width:120px;font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">section/17·600</span><span style="font-size:17px;font-weight:600">Seslendirme</span></div>
+        <div style="display:flex;align-items:baseline;gap:16px"><span style="width:120px;font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">strong/15·600</span><span style="font-size:15px;font-weight:600">Kartlar oluşturuluyor</span></div>
+        <div style="display:flex;align-items:baseline;gap:16px"><span style="width:120px;font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">body/13·400</span><span style="font-size:13px;line-height:1.55">Taban gövde metni. Satır yüksekliği 1,55.</span></div>
+        <div style="display:flex;align-items:baseline;gap:16px"><span style="width:120px;font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">small/12·400</span><span style="font-size:12px;color:var(--rv-text-muted)">İkincil metin ve alan etiketleri</span></div>
+        <div style="display:flex;align-items:baseline;gap:16px"><span style="width:120px;font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">micro/11·500</span><span style="font-size:11px;color:var(--rv-text-faint);text-transform:uppercase;letter-spacing:.02em">Bölüm başlığı</span></div>
+        <div style="display:flex;align-items:baseline;gap:16px"><span style="width:120px;font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">mono/11.5</span><span style="font-family:var(--rv-font-mono);font-size:11.5px;color:var(--rv-text-muted)">14:29:52 kart 4/7 üretiliyor…</span></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Buton · Button</span>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:11px;color:var(--rv-text-faint);font-family:var(--rv-font-mono)">
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:64px">primary</span>
+          <button style="height:30px;padding:0 14px;border-radius:6px;background:#3fbf8f;color:#fff;border:none;font:500 13px/1 var(--rv-font)">Oluştur</button>
+          <button style="height:30px;padding:0 14px;border-radius:6px;background:#57cea3;color:#fff;border:none;font:500 13px/1 var(--rv-font)">Hover</button>
+          <button style="height:30px;padding:0 14px;border-radius:6px;background:#33a37a;color:#fff;border:none;font:500 13px/1 var(--rv-font)">Basılı</button>
+          <button style="height:30px;padding:0 14px;border-radius:6px;background:#3fbf8f;color:#fff;border:none;font:500 13px/1 var(--rv-font);opacity:.4">Devre dışı</button>
+          <button style="height:30px;padding:0 14px;border-radius:6px;background:#3fbf8f;color:#fff;border:none;font:500 13px/1 var(--rv-font);display:inline-flex;align-items:center;gap:7px"><span style="width:12px;height:12px;border-radius:999px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;animation:rv-pulse 1s linear infinite"></span>Yükleniyor</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:64px">secondary</span>
+          <button style="height:30px;padding:0 14px;border-radius:6px;background:var(--rv-bg-elevated);color:var(--rv-text);border:1px solid var(--rv-border-strong);font:500 13px/1 var(--rv-font)">Normal</button>
+          <button style="height:30px;padding:0 14px;border-radius:6px;background:#262a34;color:var(--rv-text);border:1px solid var(--rv-border-strong);font:500 13px/1 var(--rv-font)">Hover</button>
+          <button style="height:30px;padding:0 14px;border-radius:6px;background:#15171c;color:var(--rv-text);border:1px solid var(--rv-border-strong);font:500 13px/1 var(--rv-font)">Basılı</button>
+          <button style="height:30px;padding:0 14px;border-radius:6px;background:var(--rv-bg-elevated);color:var(--rv-text);border:1px solid var(--rv-border);font:500 13px/1 var(--rv-font);opacity:.4">Devre dışı</button>
+          <button style="height:30px;padding:0 14px;border-radius:6px;background:var(--rv-bg-elevated);color:var(--rv-text);border:1px solid var(--rv-accent);font:500 13px/1 var(--rv-font);box-shadow:var(--rv-focus)">Odaklı</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:64px">ghost</span>
+          <button style="height:30px;padding:0 12px;border-radius:6px;background:transparent;color:var(--rv-text-muted);border:none;font:500 13px/1 var(--rv-font)">Atla</button>
+          <button style="height:30px;padding:0 12px;border-radius:6px;background:var(--rv-bg-elevated);color:var(--rv-text);border:none;font:500 13px/1 var(--rv-font)">Hover</button>
+          <button style="height:30px;padding:0 12px;border-radius:6px;background:transparent;color:var(--rv-text-muted);border:none;font:500 13px/1 var(--rv-font);opacity:.4">Devre dışı</button>
+          <span style="width:20px"></span><span style="width:64px">danger</span>
+          <button style="height:30px;padding:0 14px;border-radius:6px;background:transparent;color:var(--rv-danger);border:1px solid rgba(240,97,109,.4);font:500 13px/1 var(--rv-font)">Sil</button>
+          <button style="height:30px;padding:0 14px;border-radius:6px;background:var(--rv-danger);color:#fff;border:none;font:500 13px/1 var(--rv-font)">Kalıcı sil</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:32px;padding-top:24px;border-top:1px solid var(--rv-border)">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Metin alanı · TextField</span>
+      <div style="display:flex;align-items:center;height:32px;padding:0 10px;border-radius:6px;background:var(--rv-bg-inset);border:1px solid var(--rv-border);color:var(--rv-text-faint)">Yer tutucu metin</div>
+      <div style="display:flex;align-items:center;height:32px;padding:0 10px;border-radius:6px;background:var(--rv-bg-inset);border:1px solid var(--rv-accent);box-shadow:var(--rv-focus)">Odaklı<span style="width:1px;height:16px;margin-left:1px;background:var(--rv-accent)"></span></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><div style="display:flex;align-items:center;height:32px;padding:0 10px;border-radius:6px;background:var(--rv-bg-inset);border:1px solid var(--rv-danger)">Geçersiz bağlantı</div><span style="font-size:11px;color:var(--rv-danger)">Bu bir Reddit gönderi bağlantısı değil.</span></div>
+      <div style="display:flex;align-items:center;height:32px;padding:0 10px;border-radius:6px;background:var(--rv-bg-inset);border:1px solid var(--rv-border);color:var(--rv-text-faint);opacity:.5">Devre dışı</div>
+      <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase;padding-top:6px">Açılır liste · Select</span>
+      <div style="display:flex;align-items:center;height:32px;padding:0 10px;border-radius:6px;background:var(--rv-bg-inset);border:1px solid var(--rv-border)">ElevenLabs<i data-lucide="chevron-down" style="width:14px;height:14px;margin-left:auto;color:var(--rv-text-faint)"></i></div>
+      <div style="display:flex;flex-direction:column;padding:4px;border-radius:8px;background:var(--rv-bg-elevated);border:1px solid var(--rv-border);box-shadow:var(--rv-shadow-1);font-size:12px">
+        <span style="display:flex;align-items:center;gap:8px;height:28px;padding:0 8px;border-radius:4px;background:var(--rv-accent-soft);color:var(--rv-text)">ElevenLabs<i data-lucide="check" style="width:13px;height:13px;margin-left:auto;color:var(--rv-accent-quiet)"></i></span>
+        <span style="display:flex;align-items:center;height:28px;padding:0 8px;color:var(--rv-text-muted)">Google Translate</span>
+        <span style="display:flex;align-items:center;height:28px;padding:0 8px;color:var(--rv-text-muted)">OpenAI</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Kontroller</span>
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:34px;height:20px;border-radius:999px;background:var(--rv-accent);display:flex;align-items:center;padding:2px;box-sizing:border-box"><span style="margin-left:auto;width:16px;height:16px;border-radius:999px;background:#fff"></span></div>
+        <div style="width:34px;height:20px;border-radius:999px;background:var(--rv-bg-inset);border:1px solid var(--rv-border-strong);display:flex;align-items:center;padding:2px;box-sizing:border-box"><span style="width:16px;height:16px;border-radius:999px;background:var(--rv-text-faint)"></span></div>
+        <div style="width:34px;height:20px;border-radius:999px;background:var(--rv-accent);display:flex;align-items:center;padding:2px;box-sizing:border-box;box-shadow:var(--rv-focus)"><span style="margin-left:auto;width:16px;height:16px;border-radius:999px;background:#fff"></span></div>
+        <span style="font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">Switch · açık / kapalı / odaklı</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="width:15px;height:15px;border-radius:4px;background:var(--rv-accent);display:grid;place-items:center;color:#fff"><i data-lucide="check" style="width:11px;height:11px"></i></span>
+        <span style="width:15px;height:15px;border-radius:4px;border:1px solid var(--rv-border-strong)"></span>
+        <span style="width:15px;height:15px;border-radius:4px;border:1px solid var(--rv-accent);box-shadow:var(--rv-focus)"></span>
+        <span style="width:15px;height:15px;border-radius:4px;background:var(--rv-accent);display:grid;place-items:center"><span style="width:8px;height:1.5px;background:#fff"></span></span>
+        <span style="font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">Checkbox · 4 durum</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px"><div style="flex:1;height:4px;border-radius:999px;background:var(--rv-bg-inset);position:relative"><div style="width:62%;height:100%;background:var(--rv-accent);border-radius:999px"></div><div style="position:absolute;left:62%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:999px;background:var(--rv-text);border:1px solid var(--rv-border-strong)"></div></div><span style="font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">Slider</span></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="display:flex;padding:2px;gap:2px;border-radius:6px;background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-size:12px"><span style="padding:4px 12px;border-radius:4px;background:var(--rv-bg-elevated);font-weight:500">Koyu</span><span style="padding:4px 12px;border-radius:4px;color:var(--rv-text-muted)">Açık</span><span style="padding:4px 12px;border-radius:4px;color:var(--rv-text-muted)">Saydam</span></div>
+        <span style="font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">SegmentedControl</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="padding:3px 9px;border-radius:999px;background:var(--rv-bg-elevated);border:1px solid var(--rv-border);color:var(--rv-text-muted);font-size:11px">Bekliyor</span>
+        <span style="padding:3px 9px;border-radius:999px;background:var(--rv-accent-soft);color:var(--rv-accent-quiet);font-size:11px;font-weight:500">Çalışıyor</span>
+        <span style="padding:3px 9px;border-radius:999px;background:var(--rv-success-soft);color:var(--rv-success);font-size:11px;font-weight:500">Bitti</span>
+        <span style="padding:3px 9px;border-radius:999px;background:var(--rv-danger-soft);color:var(--rv-danger);font-size:11px;font-weight:500">Hata</span>
+        <span style="padding:3px 9px;border-radius:999px;background:var(--rv-warning-soft);color:var(--rv-warning);font-size:11px;font-weight:500">Uyarı</span>
+        <span style="font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">StatusBadge</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="flex:1;height:5px;border-radius:999px;background:var(--rv-bg-inset);overflow:hidden"><div style="width:58%;height:100%;background:var(--rv-accent)"></div></div>
+        <div style="width:36px;height:36px;border-radius:999px;border:3px solid var(--rv-bg-inset);border-top-color:var(--rv-accent);border-right-color:var(--rv-accent)"></div>
+        <span style="font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">ProgressBar · ProgressRing</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding-top:4px">
+        <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--rv-text-muted)"><i data-lucide="check" style="width:13px;height:13px;color:var(--rv-success)"></i>Kaynak</span>
+        <i data-lucide="chevron-right" style="width:13px;height:13px;color:var(--rv-text-faint)"></i>
+        <span style="font-size:12px;font-weight:500">İçerik</span>
+        <i data-lucide="chevron-right" style="width:13px;height:13px;color:var(--rv-text-faint)"></i>
+        <span style="font-size:12px;color:var(--rv-text-faint)">Ses</span>
+        <span style="font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint);margin-left:6px">StepProgress</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="padding:5px 9px;border-radius:6px;background:#000;color:#fff;font-size:11px;box-shadow:var(--rv-shadow-1)">Panodan yapıştır · ⌘V</span>
+        <span style="font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint)">Tooltip</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--rv-border)">
+        <span style="padding:7px 10px;font-size:12px;font-weight:500;border-bottom:2px solid var(--rv-accent);margin-bottom:-1px">Genel</span>
+        <span style="padding:7px 10px;font-size:12px;color:var(--rv-text-muted)">Seslendirme</span>
+        <span style="padding:7px 10px;font-size:12px;color:var(--rv-text-muted)">Video</span>
+        <span style="font-family:var(--rv-font-mono);font-size:10.5px;color:var(--rv-text-faint);margin-left:auto">Tabs</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:11px;font-weight:500;color:var(--rv-text-faint);letter-spacing:.02em;text-transform:uppercase">Bileşikler</span>
+      <div style="display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:10px;background:var(--rv-bg-surface);border:1px solid var(--rv-border)"><span style="font-weight:500">Card</span><span style="font-size:12px;color:var(--rv-text-muted);line-height:1.5">Panel yüzeyi: bg-surface + 1px border + radius-md. Gölge yalnızca yüzen katmanlarda.</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:var(--rv-bg-elevated);border:1px solid var(--rv-border);box-shadow:var(--rv-shadow-1)"><span style="width:18px;height:18px;display:grid;place-items:center;border-radius:999px;background:var(--rv-success-soft);color:var(--rv-success)"><i data-lucide="check" style="width:12px;height:12px"></i></span><span style="font-size:12px">Video hazır · 1:04</span><a href="#1n" style="margin-left:auto;font-size:12px">Göster</a><span style="font-family:var(--rv-font-mono);font-size:10px;color:var(--rv-text-faint)">Toast</span></div>
+      <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:10px;background:var(--rv-bg-elevated);border:1px solid var(--rv-border-strong);box-shadow:var(--rv-shadow-1)">
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="font-weight:600;font-size:14px">Videoyu sil</span><span style="font-size:12px;color:var(--rv-text-muted);line-height:1.5">“En çok yanılınan şey nedir?” diskten kaldırılacak. Bu işlem geri alınamaz.</span></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end"><button style="height:28px;padding:0 12px;border-radius:6px;background:transparent;border:1px solid var(--rv-border-strong);color:var(--rv-text);font:500 12px/1 var(--rv-font)">Vazgeç</button><button style="height:28px;padding:0 12px;border-radius:6px;background:var(--rv-danger);border:none;color:#fff;font:500 12px/1 var(--rv-font)">Sil</button></div>
+        <span style="font-family:var(--rv-font-mono);font-size:10px;color:var(--rv-text-faint)">Modal</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;background:var(--rv-bg-surface);border:1px solid var(--rv-border)">
+        <span style="width:26px;height:26px;display:grid;place-items:center;border-radius:999px;background:var(--rv-accent);color:#fff"><i data-lucide="play" style="width:12px;height:12px"></i></span>
+        <span style="font-size:12px;width:52px">Derya</span>
+        <span style="flex:1;display:flex;align-items:center;gap:2px;height:20px"><span style="flex:1;height:50%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:80%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:35%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:95%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:60%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:40%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:75%;background:var(--rv-border-strong);border-radius:2px"></span><span style="flex:1;height:55%;background:var(--rv-border-strong);border-radius:2px"></span></span>
+        <span style="font-family:var(--rv-font-mono);font-size:10px;color:var(--rv-text-faint)">VoicePreviewRow</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:flex-end">
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="width:56px;aspect-ratio:9/16;border-radius:6px;border:2px solid var(--rv-accent);background:repeating-linear-gradient(135deg,#2a3140 0 6px,#232937 6px 12px)"></span><span style="font-family:var(--rv-font-mono);font-size:10px;color:var(--rv-text-faint)">seçili</span></div>
+        <div style="display:flex;flex-direction:column;gap:5px"><span style="width:56px;aspect-ratio:9/16;border-radius:6px;border:1px solid var(--rv-border);background:repeating-linear-gradient(135deg,#242b3a 0 6px,#1e2431 6px 12px)"></span><span style="font-family:var(--rv-font-mono);font-size:10px;color:var(--rv-text-faint)">BackgroundTile</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:5px;padding:8px 10px;border-radius:6px;background:var(--rv-bg-inset);border:1px solid var(--rv-border);font-family:var(--rv-font-mono);font-size:10.5px;line-height:1.7;color:var(--rv-text-muted)"><span><span style="color:var(--rv-text-faint)">14:29:38</span> ses birleştirildi</span><span><span style="color:var(--rv-text-faint)">14:29:52</span> kart 4/7…</span><span style="color:var(--rv-text-faint)">LogConsole</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;border-radius:10px;border:1px dashed var(--rv-border-strong)">
+        <span style="width:34px;height:44px;border-radius:6px;border:1px dashed var(--rv-border-strong);display:grid;place-items:center;color:var(--rv-text-faint)"><i data-lucide="film" style="width:16px;height:16px"></i></span>
+        <span style="font-size:12px;color:var(--rv-text-muted)">Kitaplık henüz boş</span>
+        <span style="font-family:var(--rv-font-mono);font-size:10px;color:var(--rv-text-faint)">EmptyState</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:8px;padding-top:20px;border-top:1px solid var(--rv-border);font-family:var(--rv-font-mono);font-size:11px;color:var(--rv-text-faint)">
+    <span style="color:var(--rv-text-muted)">Vue bileşen envanteri:</span>
+    <span>AppSidebar</span><span>·</span><span>TitleBar</span><span>·</span><span>StepProgress</span><span>·</span><span>CommentRow</span><span>·</span><span>DurationSummary</span><span>·</span><span>VoicePreviewRow</span><span>·</span><span>BackgroundTile</span><span>·</span><span>PhonePreview</span><span>·</span><span>LogConsole</span><span>·</span><span>SettingsTabs</span><span>·</span><span>EmptyState</span><span>·</span><span>QueueRow</span><span>·</span><span>LibraryCard</span><span>·</span><span>PresetCard</span><span>·</span><span>SetupChecklist</span><span>·</span><span>StatusBadge</span><span>·</span><span>SegmentedControl</span><span>·</span><span>ProgressBar</span>
+  </div>
+</div>
+</div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#3fbf8f&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#3fbf8f&quot;,&quot;#3f8cf5&quot;,&quot;#2fa88a&quot;,&quot;#c2603f&quot;],&quot;section&quot;:&quot;Tema&quot;}}">
+class Component extends DCLogic {
+  componentDidMount() {
+    const draw = () => window.lucide && window.lucide.createIcons({ attrs: { "stroke-width": 1.6 } });
+    draw();
+    let n = 0;
+    this._t = setInterval(() => { draw(); if (++n > 60) clearInterval(this._t); }, 350);
+  }
+  componentWillUnmount() { clearInterval(this._t); }
+  renderVals() {
+    const a = this.props.accentColor ?? "#3fbf8f";
+    return {
+      accent: a,
+      accentHover: a + "cc",
+      accentQuiet: a + "bb",
+      accentSoft: a + "29"
+    };
+  }
+}
+</script>
+</body>
+</html>

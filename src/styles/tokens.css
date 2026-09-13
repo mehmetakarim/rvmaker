@@ -1,0 +1,102 @@
+/* Tasarım sisteminden birebir aktarılan token'lar.
+   Kaynak: Design/design-system-with-14-artboards/project/RVMaker.dc.html */
+
+:root {
+  /* Yüzeyler */
+  --rv-bg-base: #14161b;
+  --rv-bg-surface: #191b21;
+  --rv-bg-elevated: #1f222a;
+  --rv-bg-inset: #101116;
+
+  /* Kenarlıklar */
+  --rv-border: #282c36;
+  --rv-border-strong: #3a3f4c;
+
+  /* Metin */
+  --rv-text: #e8eaf0;
+  --rv-text-muted: #a3a9b8;
+  --rv-text-faint: #7d8494;
+
+  /* Vurgu */
+  --rv-accent: #3fbf8f;
+  --rv-accent-hover: #57cea3;
+  --rv-accent-quiet: #7fd9bb;
+  --rv-accent-soft: rgba(63, 191, 143, 0.16);
+  --rv-accent-press: #33a37a;
+  --rv-accent-contrast: #ffffff;
+
+  /* Etkileşim yüzeyleri */
+  --rv-elevated-hover: #262a34;
+  --rv-elevated-press: #15171c;
+
+  /* Durum */
+  --rv-success: #4da3e8;
+  --rv-success-soft: rgba(77, 163, 232, 0.14);
+  --rv-warning: #e0a341;
+  --rv-warning-soft: rgba(224, 163, 65, 0.14);
+  --rv-danger: #f0616d;
+  --rv-danger-soft: rgba(240, 97, 109, 0.14);
+
+  /* Boşluk ölçeği */
+  --rv-space-1: 4px;
+  --rv-space-2: 8px;
+  --rv-space-3: 12px;
+  --rv-space-4: 16px;
+  --rv-space-5: 24px;
+  --rv-space-6: 32px;
+
+  /* Yarıçap */
+  --rv-radius-sm: 6px;
+  --rv-radius-md: 10px;
+  --rv-radius-pill: 999px;
+
+  /* Gölge ve odak */
+  --rv-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 28px rgba(0, 0, 0, 0.24);
+  --rv-focus: 0 0 0 2px var(--rv-bg-base), 0 0 0 4px var(--rv-accent);
+
+  /* Tipografi */
+  --rv-font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --rv-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Kabuk ölçüleri */
+  --rv-titlebar-h: 38px;
+  --rv-sidebar-w: 220px;
+  --rv-traffic-lights-w: 66px;
+
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --rv-bg-base: #f6f7f9;
+  --rv-bg-surface: #ffffff;
+  --rv-bg-elevated: #ffffff;
+  --rv-bg-inset: #eff1f4;
+
+  --rv-border: #e3e5ea;
+  --rv-border-strong: #c9cdd7;
+
+  --rv-text: #15171d;
+  --rv-text-muted: #565c6b;
+  --rv-text-faint: #767d8d;
+
+  --rv-accent: #1b8f6a;
+  --rv-accent-hover: #15785a;
+  --rv-accent-quiet: #15785a;
+  --rv-accent-soft: rgba(27, 143, 106, 0.1);
+  --rv-accent-press: #11614a;
+
+  --rv-elevated-hover: #f1f2f5;
+  --rv-elevated-press: #e6e8ec;
+
+  --rv-success: #2b7fc4;
+  --rv-success-soft: rgba(43, 127, 196, 0.1);
+  --rv-warning: #b57616;
+  --rv-warning-soft: rgba(181, 118, 22, 0.1);
+  --rv-danger: #d13b49;
+  --rv-danger-soft: rgba(209, 59, 73, 0.1);
+
+  --rv-shadow-1: 0 1px 2px rgba(20, 22, 27, 0.06), 0 8px 24px rgba(20, 22, 27, 0.08);
+  --rv-focus: 0 0 0 2px var(--rv-bg-surface), 0 0 0 4px var(--rv-accent);
+
+  color-scheme: light;
+}

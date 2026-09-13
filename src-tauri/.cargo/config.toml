@@ -1,0 +1,5 @@
+# Proje harici bir USB diskte duruyor ve o disk 4,4 MB/s yazıyor (dahili disk 749 MB/s).
+# Derleme çıktısı oraya yazıldığında bağlama adımı dakikalarca sürüyor, hatta takılmış gibi
+# görünüyor. Kaynak kod yerinde kalsın, ara çıktılar dahili diske gitsin.
+[build]
+target-dir = "/Users/mehmetakar/Library/Caches/rvmaker-target"

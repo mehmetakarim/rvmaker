@@ -1,0 +1,41 @@
+name: Kontrol
+
+# Her push ve PR'da derleme ve testler — sürüm almadan önce kırık bir şey
+# kalmadığından emin olmak için.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - run: npm ci
+
+      - name: Tip denetimi
+        run: npx vue-tsc --noEmit
+
+      - name: Ön yüz derlemesi
+        run: npx vite build
+
+      - name: Rust testleri
+        run: cargo test --lib --manifest-path src-tauri/Cargo.toml

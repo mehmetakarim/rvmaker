@@ -1,0 +1,78 @@
+name: Sürüm
+
+# Bir etiket gönderildiğinde (v0.1.0 gibi) macOS ve Windows paketlerini üretip
+# aynı taslak sürüme yükler. Elle de çalıştırılabilir.
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  paket:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: "--target aarch64-apple-darwin"
+            ad: "macOS (Apple Silicon)"
+          - platform: macos-latest
+            args: "--target x86_64-apple-darwin"
+            ad: "macOS (Intel)"
+          - platform: windows-latest
+            args: ""
+            ad: "Windows"
+
+    name: ${{ matrix.ad }}
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Node kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Rust kur
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Rust önbelleği
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: Bağımlılıklar
+        run: npm ci
+
+      - name: Tip denetimi ve ön yüz derlemesi
+        run: |
+          npx vue-tsc --noEmit
+          npx vite build
+
+      - name: Rust testleri
+        run: cargo test --lib --manifest-path src-tauri/Cargo.toml
+
+      - name: Paketle ve sürüme yükle
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_type == 'tag' && github.ref_name || 'v__VERSION__' }}
+          releaseName: "RVMaker v__VERSION__"
+          releaseBody: |
+            Paketler aşağıda. macOS'ta iki mimari ayrı dosya: Apple Silicon için
+            `aarch64`, Intel için `x64`.
+
+            Kurduktan sonra **ffmpeg** gerekiyor:
+            - macOS: `brew install ffmpeg`
+            - Windows: `winget install Gyan.FFmpeg`
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.args }}
