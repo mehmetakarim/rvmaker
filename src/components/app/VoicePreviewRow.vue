@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Play, Pause, Check } from "@lucide/vue";
+import { Play, Pause, Check, Star, Lock } from "@lucide/vue";
 import type { Voice } from "@/lib/types";
 
 defineProps<{
@@ -34,7 +34,13 @@ defineEmits<{ select: []; toggle: [] }>();
     </button>
 
     <div class="name-block">
-      <span class="name">{{ voice.name }}</span>
+      <span class="name">
+        <!-- Ücretsiz planda çalıştığı kesin olan kendi sesleri yıldızlı;
+             kütüphane sesleri ücretli plan istiyor. -->
+        <Star v-if="voice.own && voice.usable !== false" :size="12" class="own-star" />
+        <Lock v-else-if="voice.usable === false" :size="12" class="locked" />
+        {{ voice.name }}
+      </span>
       <span class="detail">{{ voice.detail }}</span>
     </div>
 
@@ -62,6 +68,17 @@ defineEmits<{ select: []; toggle: [] }>();
 </template>
 
 <style scoped>
+.own-star {
+  color: var(--rv-accent);
+  fill: var(--rv-accent);
+  flex: none;
+}
+
+.locked {
+  color: var(--rv-text-faint);
+  flex: none;
+}
+
 .row {
   display: flex;
   align-items: center;
@@ -111,6 +128,9 @@ defineEmits<{ select: []; toggle: [] }>();
 }
 
 .name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 500;
 }
 

@@ -241,6 +241,10 @@ export interface VoiceInfo {
   name: string;
   detail: string;
   engine: string;
+  /** Kullanıcının kendi sesi mi — listede yıldızla işaretleniyor. */
+  own: boolean;
+  /** Bu sesle üretim yapılabilir mi (ücretsiz planda kütüphane sesleri hayır). */
+  usable: boolean;
 }
 
 /** Motor anahtarını sistem anahtar zincirine yazar. Boş değer kaydı siler. */

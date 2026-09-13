@@ -71,6 +71,10 @@ export interface Voice {
   engine: TtsEngineId;
   /** 0-1 aralığında dalga formu örnekleri */
   waveform: number[];
+  /** Kullanıcının kendi sesi mi — listede yıldızla işaretleniyor. */
+  own?: boolean;
+  /** Bu sesle üretim yapılabilir mi? */
+  usable?: boolean;
 }
 
 export interface BackgroundVideo {

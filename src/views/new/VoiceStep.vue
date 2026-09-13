@@ -315,6 +315,9 @@ function toggleVoice(id: string) {
 }
 
 .voice-list {
+  /* Panel kayar, liste kendi boyunu korur. flex-shrink açıkken 36 sesin
+     30'u `overflow: hidden` altında kırpılıyor ve hiç kaydırılamıyordu. */
+  flex: none;
   display: flex;
   flex-direction: column;
   border-radius: var(--rv-radius-md);

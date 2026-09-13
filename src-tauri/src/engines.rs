@@ -136,6 +136,14 @@ pub fn elevenlabs_error(status: u16, detail: &str) -> String {
         };
     }
 
+    // Ücretsiz planda kütüphane sesleri API'den kullanılamıyor.
+    if detail.contains("Free users cannot use library voices") {
+        return "Bu ses, ElevenLabs kütüphanesinden eklenmiş ve ücretsiz planda \
+                API üzerinden kullanılamıyor. Listenin üstündeki kendi seslerinden \
+                birini seç ya da aboneliği yükselt."
+            .to_string();
+    }
+
     match status {
         401 => "ElevenLabs anahtarı reddedildi.".to_string(),
         422 => "ElevenLabs metni kabul etmedi (ses kimliği yanlış olabilir).".to_string(),
@@ -209,6 +217,26 @@ pub struct VoiceInfo {
     pub name: String,
     pub detail: String,
     pub engine: String,
+    /// Kullanıcının kendi kopyaladığı/ürettiği ses mi? Listede yıldızla
+    /// işaretleniyor — ücretsiz planda çalıştığı kesin olanlar bunlar.
+    pub own: bool,
+    /// Bu sesle üretim yapılabilir mi? Ücretsiz planda kütüphane sesleri
+    /// API'den kullanılamıyor.
+    pub usable: bool,
+}
+
+impl Default for VoiceInfo {
+    fn default() -> Self {
+        Self {
+            id: String::new(),
+            name: String::new(),
+            detail: String::new(),
+            engine: String::new(),
+            // Diğer motorlarda böyle bir ayrım yok; hepsi kullanılabilir.
+            own: false,
+            usable: true,
+        }
+    }
 }
 
 /// OpenAI'nin sabit ses listesi — API'de listeleme uç noktası yok.
@@ -259,6 +287,7 @@ fn system_voices(lang: &str) -> Vec<VoiceInfo> {
                 name: name.to_string(),
                 detail: format!("Sistem · {locale}"),
                 engine: "system".to_string(),
+                ..Default::default()
             })
         })
         .collect()
@@ -284,12 +313,56 @@ fn dil_adi(kod: &str) -> String {
     }
 }
 
+/// Ücretsiz planda kütüphaneden eklenen sesler API üzerinden kullanılamıyor —
+/// ElevenLabs 402 döndürüyor. Kendi kopyaladığın/ürettiğin sesler ve herkese
+/// açık hazır sesler çalışıyor.
+pub fn elevenlabs_usable(ucretsiz: bool, sahibi: bool, kategori: &str) -> bool {
+    !ucretsiz || sahibi || kategori == "premade"
+}
+
+/// Hesabın ücretsiz planda olup olmadığını sorar.
+///
+/// En iyi çaba: anahtarda `user_read` izni yoksa ya da istek düşerse `false`
+/// dönüyoruz. Bilmediğimiz için sesleri yanlışlıkla "kullanılamaz" diye
+/// işaretlemektense hiç işaretlememek daha az zarar veriyor.
+async fn elevenlabs_free_tier(client: &reqwest::Client, key: &str) -> bool {
+    let Ok(response) = client
+        .get("https://api.elevenlabs.io/v1/user/subscription")
+        .header("xi-api-key", key)
+        .send()
+        .await
+    else {
+        return false;
+    };
+    if !response.status().is_success() {
+        return false;
+    }
+    response
+        .json::<serde_json::Value>()
+        .await
+        .ok()
+        .and_then(|v| v.get("tier").and_then(|t| t.as_str()).map(str::to_string))
+        .map(|t| t == "free")
+        .unwrap_or(false)
+}
+
 /// Ses listesinin sırası; küçük sayı üstte.
 ///
 /// ElevenLabs varsayılan olarak İngilizce hazır sesleri öne koyuyor. Ölçülen
 /// bir hesapta 36 sesin 21'i böyleydi ve kullanıcının kendi eklediği 15 Türkçe
 /// ses listenin dibinde kalıyordu. Sırayı kullanıcının niyetine göre kuruyoruz.
-pub fn elevenlabs_rank(favori: bool, sahibi: bool, kategori: &str, dil: &str, hedef: &str) -> u8 {
+pub fn elevenlabs_rank(
+    kullanilabilir: bool,
+    favori: bool,
+    sahibi: bool,
+    kategori: &str,
+    dil: &str,
+    hedef: &str,
+) -> u8 {
+    // Seçilemeyecek sesler en sona; kullanıcı bunları deneyip 402 almasın.
+    if !kullanilabilir {
+        return 9;
+    }
     if favori {
         return 0;
     }
@@ -332,6 +405,7 @@ async fn elevenlabs_voices(
         .map_err(|e| format!("ElevenLabs yanıtı okunamadı: {e}"))?;
 
     let hedef = lang.split(['-', '_']).next().unwrap_or("").to_lowercase();
+    let ucretsiz = elevenlabs_free_tier(client, key).await;
 
     let mut sesler: Vec<(u8, String, VoiceInfo)> = payload
         .get("voices")
@@ -362,9 +436,12 @@ async fn elevenlabs_voices(
                     // Satırda ne kadar ayırt edici bilgi varsa arama o kadar işe
                     // yarıyor; eskiden yalnızca "Kadın"/"Erkek" yazıyordu.
                     let mut parcalar: Vec<String> = Vec::new();
-                    if favori {
+                    let kullanilabilir = elevenlabs_usable(ucretsiz, sahibi, kategori);
+                    if !kullanilabilir {
+                        parcalar.push("ücretli plan gerekiyor".to_string());
+                    } else if favori {
                         parcalar.push("favori".to_string());
-                    } else if sahibi || (!kategori.is_empty() && kategori != "premade") {
+                    } else if sahibi {
                         parcalar.push("kendi sesin".to_string());
                     }
                     match etiket("gender").as_str() {
@@ -384,7 +461,8 @@ async fn elevenlabs_voices(
                         }
                     }
 
-                    let sira = elevenlabs_rank(favori, sahibi, kategori, &dil, &hedef);
+                    let sira =
+                        elevenlabs_rank(kullanilabilir, favori, sahibi, kategori, &dil, &hedef);
                     Some((
                         sira,
                         name.to_lowercase(),
@@ -397,6 +475,8 @@ async fn elevenlabs_voices(
                                 parcalar.join(" · ")
                             },
                             engine: "elevenlabs".to_string(),
+                            own: sahibi,
+                            usable: kullanilabilir,
                         },
                     ))
                 })
@@ -419,6 +499,7 @@ pub async fn list_voices(
             name: "Türkçe".to_string(),
             detail: "Google · tek ses".to_string(),
             engine: "googletranslate".to_string(),
+            ..Default::default()
         }]),
         Engine::System => Ok(system_voices(lang)),
         Engine::OpenAi => Ok(OPENAI_VOICES
@@ -428,6 +509,7 @@ pub async fn list_voices(
                 name: id.to_string(),
                 detail: detail.to_string(),
                 engine: "openai".to_string(),
+                ..Default::default()
             })
             .collect()),
         Engine::Gemini => Ok(GEMINI_VOICES
@@ -437,6 +519,7 @@ pub async fn list_voices(
                 name: id.to_string(),
                 detail: detail.to_string(),
                 engine: "gemini".to_string(),
+                ..Default::default()
             })
             .collect()),
         Engine::ElevenLabs => {
@@ -873,37 +956,39 @@ mod ses_sirasi_testleri {
     #[test]
     fn favori_her_zaman_en_ustte() {
         // Favori, İngilizce bir hazır ses olsa bile önde.
-        assert_eq!(elevenlabs_rank(true, false, "premade", "en", "tr"), 0);
+        assert_eq!(elevenlabs_rank(true, true, false, "premade", "en", "tr"), 0);
     }
 
     #[test]
     fn kendi_sesi_hazir_sesin_onunde() {
-        let kendi = elevenlabs_rank(false, false, "professional", "tr", "tr");
-        let hazir = elevenlabs_rank(false, false, "premade", "tr", "tr");
+        let kendi = elevenlabs_rank(true, false, true, "cloned", "tr", "tr");
+        let hazir = elevenlabs_rank(true, false, false, "premade", "tr", "tr");
         assert!(kendi < hazir, "kendi sesi önde olmalı: {kendi} < {hazir}");
     }
 
     #[test]
     fn hedef_dil_ayni_gruptakileri_one_alir() {
-        let tr = elevenlabs_rank(false, false, "professional", "tr", "tr");
-        let en = elevenlabs_rank(false, false, "professional", "en", "tr");
+        let tr = elevenlabs_rank(true, false, false, "premade", "tr", "tr");
+        let en = elevenlabs_rank(true, false, false, "premade", "en", "tr");
         assert!(tr < en);
     }
 
     /// Ölçülen hesabın gerçek dağılımı: 21 hazır İngilizce, 15 Türkçe kendi sesi.
     #[test]
     fn olculen_dagilim_dogru_siralanir() {
-        let mustafa = elevenlabs_rank(false, false, "professional", "tr", "tr");
-        let elara = elevenlabs_rank(false, true, "cloned", "tr", "tr");
-        let roger = elevenlabs_rank(false, false, "premade", "en", "tr");
-        assert!(mustafa < roger, "kullanıcının Türkçe sesi İngilizce hazır sesin önünde olmalı");
-        assert_eq!(mustafa, elara, "sahibi olduğu ve eklediği sesler aynı grupta");
+        // Ücretsiz planda: kendi Türkçe sesi önde, İngilizce hazır ses ortada,
+        // kullanılamayan kütüphane sesi en sonda.
+        let elara = elevenlabs_rank(true, false, true, "cloned", "tr", "tr");
+        let roger = elevenlabs_rank(true, false, false, "premade", "en", "tr");
+        let mustafa = elevenlabs_rank(false, false, false, "professional", "tr", "tr");
+        assert!(elara < roger, "kendi sesi hazır sesin önünde olmalı");
+        assert!(roger < mustafa, "kullanılamayan kütüphane sesi en sonda olmalı");
     }
 
     #[test]
     fn kategori_bilinmiyorsa_hazir_sayilmaz() {
         // Alan boş gelirse kullanıcının sesi sanıp öne almıyoruz.
-        assert_eq!(elevenlabs_rank(false, false, "", "en", "tr"), 4);
+        assert_eq!(elevenlabs_rank(true, false, false, "", "en", "tr"), 4);
     }
 
     #[test]

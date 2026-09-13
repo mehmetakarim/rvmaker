@@ -744,11 +744,16 @@ export const useDraftStore = defineStore("draft", () => {
         detail: v.detail,
         engine: engineId.value,
         waveform: waveformFor(v.id),
+        own: v.own,
+        usable: v.usable,
       }));
 
-      // Seçili ses bu motorda yoksa ilkine düş.
-      if (!voices.value.some((v) => v.id === voiceId.value)) {
-        voiceId.value = voices.value[0]?.id ?? "";
+      // Seçili ses bu motorda yoksa ya da kullanılamıyorsa, kullanılabilir
+      // ilk sese düş — yoksa üretim ortasında 402 alınıyor.
+      const secili = voices.value.find((v) => v.id === voiceId.value);
+      if (!secili || secili.usable === false) {
+        voiceId.value =
+          voices.value.find((v) => v.usable !== false)?.id ?? voices.value[0]?.id ?? "";
       }
     } catch (error) {
       voices.value = [];
