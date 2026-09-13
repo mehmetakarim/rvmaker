@@ -4,3 +4,6 @@ src-tauri/target/
 .DS_Store
 *.log
 Design/*.zip
+
+# Yerel derleme hızlandırması: mutlak yol içerir, makineye özel.
+src-tauri/.cargo/

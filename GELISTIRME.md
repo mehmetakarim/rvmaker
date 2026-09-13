@@ -254,6 +254,20 @@ Google, Gemini, ElevenLabs ve OpenAI çağrılarının hepsi buradan geçiyor.
 Sertifika ya da istek kurma hatalarında beklenmiyor — onlarda tekrarın anlamı
 yok.
 
+## Yerel derleme yolu
+
+`src-tauri/.cargo/config.toml` depoya **dahil değil** ve olmamalı: içinde
+makineye özel mutlak bir yol var. Proje yavaş bir harici diskte duruyorsa ara
+çıktıları dahili diske yönlendirmek derlemeyi belirgin biçimde hızlandırıyor:
+
+```toml
+[build]
+target-dir = "/Users/<kullanici>/Library/Caches/rvmaker-target"
+```
+
+Bu dosya sürüm iş akışında bir kez depoya sızdı ve macOS paketleri
+`Permission denied` ile düştü — CI çalıştırıcısında o yol yok.
+
 ## Bilinen sınırlar
 
 - **Kuyrukta eşzamanlı iş 1'e sabit.** ffmpeg zaten tüm çekirdekleri kullandığı
