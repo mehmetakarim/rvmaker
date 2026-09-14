@@ -141,12 +141,67 @@ pub fn bird_path() -> Option<String> {
     None
 }
 
+/// bird'ün nasıl çalıştırılacağı: program ve ondan önce gelecek argümanlar.
+#[derive(Debug, Clone, PartialEq)]
+pub struct BirdCommand {
+    pub program: String,
+    pub prefix: Vec<String>,
+}
+
+/// `package.json`'daki `bin` alanından bir komutun giriş dosyasını çıkarır.
+/// Alan hem düz dize (`"dist/index.js"`) hem ad→yol eşlemesi olabiliyor.
+pub fn bin_entry(package_json: &str, bin_name: &str) -> Option<String> {
+    let v: serde_json::Value = serde_json::from_str(package_json).ok()?;
+    match v.get("bin")? {
+        serde_json::Value::String(yol) => Some(yol.clone()),
+        serde_json::Value::Object(harita) => harita
+            .get(bin_name)
+            .and_then(|x| x.as_str())
+            .map(str::to_string),
+        _ => None,
+    }
+}
+
+/// npm kabuğunun durduğu klasörden `node <giriş dosyası>` komutunu kurar.
+///
+/// Windows'ta `bird.cmd`'yi doğrudan çalıştırmak iki yerden kırılgan: uzantısız
+/// Unix betiği seçilirse os error 193, `.cmd` seçilirse argümanlar toplu iş
+/// kaçış kurallarından geçiyor ve arama sorgusundaki boşluk/tırnak/iki nokta
+/// bozulabiliyor. Gerçek JS dosyasını node ile çalıştırmak ikisinden de kaçıyor.
+pub fn node_command_for(shim_dir: &std::path::Path, node: &str) -> Option<BirdCommand> {
+    let paket = shim_dir.join("node_modules").join("@steipete").join("bird");
+    let json = std::fs::read_to_string(paket.join("package.json")).ok()?;
+    let giris = paket.join(bin_entry(&json, "bird")?);
+    if !giris.is_file() || node.is_empty() {
+        return None;
+    }
+    Some(BirdCommand {
+        program: node.to_string(),
+        prefix: vec![giris.to_string_lossy().to_string()],
+    })
+}
+
+/// bird'ü çalıştıracak komutu belirler.
+pub fn bird_command() -> Option<BirdCommand> {
+    let bird = bird_path()?;
+    if cfg!(target_os = "windows") {
+        let dizin = std::path::Path::new(&bird).parent();
+        let node = crate::toolpath::find_tool("node");
+        if let (Some(dizin), Some(node)) = (dizin, node) {
+            if let Some(komut) = node_command_for(dizin, &node) {
+                return Some(komut);
+            }
+        }
+    }
+    Some(BirdCommand { program: bird, prefix: Vec::new() })
+}
+
 /// Saklanan çerezlerle `bird` çalıştırır.
 ///
 /// Çerezleri açıkça geçiyoruz; bird'ün tarayıcıdan kendi okuması, `ct0`
 /// eşleşmediğinde 353 hatası veriyor (ölçüldü).
 fn run_bird(args: &[&str]) -> Result<String, String> {
-    let bird = bird_path().ok_or_else(|| {
+    let bird = bird_command().ok_or_else(|| {
         "bird CLI bulunamadı. Kurmak için: npm install -g @steipete/bird".to_string()
     })?;
     let auth = read_entry(AUTH_TOKEN_ENTRY)
@@ -157,12 +212,14 @@ fn run_bird(args: &[&str]) -> Result<String, String> {
     // sürümünün `node` ikilisi yanı başında duruyor; onu PATH'in başına
     // koyuyoruz ki başka bir node sürümüne düşmesin ya da hiç bulunamasın.
     let mut child_path = std::env::var("PATH").unwrap_or_default();
-    if let Some(dir) = std::path::Path::new(&bird).parent() {
-        child_path = crate::toolpath::merge(&dir.to_string_lossy(), &[]) + ":" + &child_path;
+    if let Some(dir) = std::path::Path::new(&bird.program).parent() {
+        // Ayırıcı platforma göre: Windows'ta `:` sürücü harflerini bölüyordu.
+        child_path = crate::toolpath::prepend(&dir.to_string_lossy(), &child_path);
     }
 
-    let output = std::process::Command::new(&bird)
+    let output = crate::toolpath::command(&bird.program)
         .env("PATH", &child_path)
+        .args(&bird.prefix)
         .args(["--auth-token", &auth, "--ct0", &ct0, "--plain"])
         .args(args)
         .output()
@@ -759,6 +816,80 @@ pub async fn fetch_thread(url_or_id: &str, limit: usize) -> Result<TweetThread, 
 
     let replies = fetch_replies(&id, limit).await.unwrap_or_default();
     Ok(TweetThread { tweet, replies })
+}
+
+#[cfg(test)]
+mod bird_komut_testleri {
+    use super::{bin_entry, node_command_for, BirdCommand};
+
+    /// bird'ü çözüp kimlik gerektirmeyen `--version` ile çalıştırır. Windows
+    /// CI'da kullanıcının yaşadığı os error 193'ün gerçekten kapandığını sınıyor.
+    /// `cargo test canli_bird_cozumleme -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn canli_bird_cozumleme() {
+        let komut = super::bird_command().expect("bird bulunamadı");
+        println!("program: {}", komut.program);
+        println!("önek   : {:?}", komut.prefix);
+        if cfg!(target_os = "windows") {
+            let p = komut.program.to_ascii_lowercase();
+            assert!(
+                p.ends_with(".exe") || p.ends_with(".cmd") || p.ends_with(".bat"),
+                "Windows'ta uzantısız betik seçildi: {}",
+                komut.program
+            );
+        }
+        let cikti = crate::toolpath::command(&komut.program)
+            .args(&komut.prefix)
+            .arg("--version")
+            .output()
+            .expect("bird çalıştırılamadı");
+        let surum = String::from_utf8_lossy(&cikti.stdout);
+        println!("bird --version: {}", surum.trim());
+        assert!(cikti.status.success(), "bird --version düştü: {}", String::from_utf8_lossy(&cikti.stderr));
+    }
+
+    #[test]
+    fn bin_alani_eslemeden_okunur() {
+        // @steipete/bird 0.4.0'ın gerçek package.json'u bu biçimde.
+        let json = r#"{"name":"@steipete/bird","bin":{"bird":"dist/index.js"}}"#;
+        assert_eq!(bin_entry(json, "bird").as_deref(), Some("dist/index.js"));
+    }
+
+    #[test]
+    fn bin_alani_duz_dize_de_olabilir() {
+        assert_eq!(bin_entry(r#"{"bin":"cli.js"}"#, "bird").as_deref(), Some("cli.js"));
+        assert_eq!(bin_entry(r#"{"name":"x"}"#, "bird"), None);
+        assert_eq!(bin_entry("bozuk json", "bird"), None);
+    }
+
+    /// Windows'taki npm global düzenini geçici klasörde kurup çözümlemeyi
+    /// sınar — klasör yapısı platformdan bağımsız olduğu için her yerde koşuyor.
+    #[test]
+    fn npm_kabugunun_yanindaki_paketi_bulur() {
+        let kok = std::env::temp_dir().join(format!("rvmaker-bird-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&kok);
+        let paket = kok.join("node_modules").join("@steipete").join("bird");
+        std::fs::create_dir_all(paket.join("dist")).unwrap();
+        std::fs::write(paket.join("package.json"), r#"{"bin":{"bird":"dist/index.js"}}"#).unwrap();
+        std::fs::write(paket.join("dist").join("index.js"), "// bird").unwrap();
+        std::fs::write(kok.join("bird.cmd"), "@echo off").unwrap();
+
+        let komut = node_command_for(&kok, "node.exe").expect("komut kurulmalı");
+        assert_eq!(komut.program, "node.exe");
+        assert_eq!(komut.prefix.len(), 1);
+        assert!(komut.prefix[0].ends_with("index.js"), "giriş: {:?}", komut.prefix);
+
+        let _ = std::fs::remove_dir_all(&kok);
+    }
+
+    #[test]
+    fn paket_yoksa_kabuga_duser() {
+        let bos = std::env::temp_dir().join(format!("rvmaker-bird-bos-{}", std::process::id()));
+        std::fs::create_dir_all(&bos).unwrap();
+        assert_eq!(node_command_for(&bos, "node.exe"), None::<BirdCommand>);
+        let _ = std::fs::remove_dir_all(&bos);
+    }
 }
 
 #[cfg(test)]

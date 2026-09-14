@@ -36,6 +36,11 @@ async function copyCommand(command: string) {
 }
 
 function proceed() {
+  try {
+    localStorage.setItem("rv-setup-done", "1");
+  } catch {
+    /* depolama kapalıysa bir sonraki açılışta ekran yeniden gelir — zararsız */
+  }
   router.push("/yeni/kaynak");
 }
 </script>

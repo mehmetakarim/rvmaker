@@ -3,6 +3,9 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router"
 /** Store henüz kurulmadan okunduğu için doğrudan depolamadan bakıyoruz. */
 function localStorageStartRoute(): string {
   try {
+    // İlk kurulumda kullanıcı neyin eksik olduğunu görmeden akışa atılmasın.
+    // Kurulum ekranındaki "Devam et" bu işareti koyuyor.
+    if (localStorage.getItem("rv-setup-done") !== "1") return "/kurulum";
     const value = localStorage.getItem("rv-start-on-launch");
     if (value === "library") return "/kitaplik";
     if (value === "setup") return "/kurulum";

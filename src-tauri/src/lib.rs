@@ -8,10 +8,9 @@ mod toolpath;
 mod tts;
 mod twitter;
 
-use std::process::Command;
 
 use serde::{Deserialize, Serialize};
-use tauri::{AppHandle, Emitter};
+use tauri::{AppHandle, Emitter, Manager};
 
 #[derive(Serialize, Clone)]
 pub struct EnvCheck {
@@ -36,24 +35,14 @@ pub struct EnvParams {
     reddit_configured: bool,
 }
 
+/// Windows'ta `where` birden çok satır dönebiliyor; eski hâli çıktının tamamını
+/// tek bir yol sanıyordu. Ayrıştırma `toolpath::find_tool`'da.
 fn which(binary: &str) -> Option<String> {
-    let out = Command::new(if cfg!(target_os = "windows") { "where" } else { "which" })
-        .arg(binary)
-        .output()
-        .ok()?;
-    if !out.status.success() {
-        return None;
-    }
-    let path = String::from_utf8_lossy(&out.stdout).trim().to_string();
-    if path.is_empty() {
-        None
-    } else {
-        Some(path)
-    }
+    toolpath::find_tool(binary)
 }
 
 fn first_line(command: &str, arg: &str) -> String {
-    Command::new(command)
+    toolpath::command(command)
         .arg(arg)
         .output()
         .ok()
@@ -72,7 +61,7 @@ fn first_line(command: &str, arg: &str) -> String {
 ///
 /// Not: RVMaker Python kullanmıyor (saf Rust + Vue), o yüzden Python denetimi yok.
 #[tauri::command]
-async fn check_environment(params: EnvParams) -> Vec<EnvCheck> {
+async fn check_environment(app: AppHandle, params: EnvParams) -> Vec<EnvCheck> {
     let mut checks = Vec::new();
 
     // 1 — ffmpeg ve ffprobe: seslendirme birleştirme, kapak görseli ve render bunlara bağlı
@@ -161,8 +150,10 @@ async fn check_environment(params: EnvParams) -> Vec<EnvCheck> {
         fix_command: String::new(),
     });
 
-    // 4 — Arka plan kitaplığı
-    let background_count = scan_media(&params.backgrounds_dir, &["mp4", "mov", "mkv", "webm"]).len();
+    // 4 — Arka plan kitaplığı: paketle gelen varsayılanlar da sayılıyor.
+    // Kullanıcı klasörü boş olsa bile ilk videoyu üretecek bir şey var.
+    let background_count =
+        media_with_bundled(&app, &params.backgrounds_dir, &["mp4", "mov", "mkv", "webm"]).len();
     checks.push(EnvCheck {
         id: "backgrounds".into(),
         label: "Arka plan kitaplığı".into(),
@@ -176,12 +167,35 @@ async fn check_environment(params: EnvParams) -> Vec<EnvCheck> {
         fix_hint: if background_count > 0 {
             String::new()
         } else {
-            "Ayarlar → Video → Arka plan klasörüne bir video koy.".into()
+            "Ayarlar → Video → Arka plan klasörü seç ve içine bir video koy.".into()
         },
         fix_command: String::new(),
     });
 
-    // 5 — Çıktı klasörü yazılabilir mi
+    // 5 — X (Twitter) için bird. İsteğe bağlı: yalnızca X kaynağı kullanılacaksa.
+    let bird = twitter::bird_path();
+    checks.push(EnvCheck {
+        id: "bird".into(),
+        label: "X aracı (bird)".into(),
+        detail: match &bird {
+            Some(yol) => yol.clone(),
+            None => "Kurulu değil — yalnızca X'ten video üretmek için gerekli".into(),
+        },
+        state: if bird.is_some() { "ready".into() } else { "warning".into() },
+        required: false,
+        fix_hint: if bird.is_some() {
+            String::new()
+        } else {
+            "Node.js kurulu olmalı; ardından bu komutu çalıştır ve uygulamayı yeniden aç.".into()
+        },
+        fix_command: if bird.is_some() {
+            String::new()
+        } else {
+            "npm install -g @steipete/bird".into()
+        },
+    });
+
+    // 6 — Çıktı klasörü yazılabilir mi
     let out_dir = expand_home(&params.output_dir);
     let writable = std::fs::create_dir_all(&out_dir).is_ok()
         && {
@@ -234,7 +248,7 @@ async fn install_ffmpeg(app: AppHandle) -> Result<(), String> {
     })?;
 
     tauri::async_runtime::spawn_blocking(move || {
-        let output = Command::new(&brew).args(["install", "ffmpeg"]).output();
+        let output = toolpath::command(&brew).args(["install", "ffmpeg"]).output();
 
         match output {
             Ok(out) => {
@@ -667,6 +681,75 @@ pub struct BackgroundEntry {
     width: u32,
     height: u32,
     duration_sec: f64,
+    /// Uygulamayla birlikte gelen varsayılan medya mı?
+    bundled: bool,
+}
+
+/// Uygulamayla gelen varsayılan arka plan ve müziğin klasörü.
+///
+/// İlk kez kuran kullanıcının seçebileceği hiçbir şey yoktu: klasör
+/// varsayılanları geliştirme makinesindeki bir yola sabitlenmişti. Artık
+/// özgün üretilmiş bir gradyan ve telifsiz bir ambiyans paketin içinde.
+fn bundled_media_dir(app: &AppHandle) -> Option<std::path::PathBuf> {
+    if let Some(dir) = app
+        .path()
+        .resource_dir()
+        .ok()
+        .map(|d| d.join("media"))
+        .filter(|d| d.is_dir())
+    {
+        return Some(dir);
+    }
+    // `tauri dev` sırasında kaynaklar henüz kopyalanmamış olabiliyor.
+    #[cfg(debug_assertions)]
+    {
+        let kaynak = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/media");
+        if kaynak.is_dir() {
+            return Some(kaynak);
+        }
+    }
+    None
+}
+
+/// Paketle gelen dosyaların okunur adları — dosya adından türetince
+/// Türkçe karakterler kayboluyordu ("Varsayilan gradyan").
+fn bundled_label(stem: &str) -> Option<&'static str> {
+    match stem {
+        "varsayilan-gradyan" => Some("Varsayılan · Gradyan"),
+        "varsayilan-ambiyans" => Some("Varsayılan · Sakin ambiyans"),
+        _ => None,
+    }
+}
+
+/// Paketle gelen medyayı ve kullanıcının klasörünü birlikte listeler.
+/// Varsayılanlar önde; aynı kimlik iki yerde varsa kullanıcınınki gizlenmiyor,
+/// yalnızca paketle gelen yinelenmiyor.
+fn media_with_bundled(
+    app: &AppHandle,
+    user_dir: &str,
+    extensions: &[&str],
+) -> Vec<BackgroundEntry> {
+    let mut list: Vec<BackgroundEntry> = bundled_media_dir(app)
+        .map(|d| scan_media(&d.to_string_lossy(), extensions))
+        .unwrap_or_default()
+        .into_iter()
+        .map(|mut e| {
+            e.bundled = true;
+            if let Some(ad) = bundled_label(&e.id) {
+                e.label = ad.to_string();
+            }
+            e
+        })
+        .collect();
+
+    if !user_dir.trim().is_empty() {
+        for e in scan_media(user_dir, extensions) {
+            if !list.iter().any(|b| b.id == e.id) {
+                list.push(e);
+            }
+        }
+    }
+    list
 }
 
 /// Verilen klasördeki medya dosyalarını listeler.
@@ -700,7 +783,7 @@ fn scan_media(dir: &str, extensions: &[&str]) -> Vec<BackgroundEntry> {
 
         let (mut width, mut height, mut duration) = (0u32, 0u32, 0f64);
         if !ffprobe.is_empty() {
-            if let Ok(out) = Command::new(&ffprobe)
+            if let Ok(out) = toolpath::command(&ffprobe)
                 .args([
                     "-v", "error",
                     "-select_streams", "v:0",
@@ -751,6 +834,7 @@ fn scan_media(dir: &str, extensions: &[&str]) -> Vec<BackgroundEntry> {
             width,
             height,
             duration_sec: duration,
+            bundled: false,
         });
     }
 
@@ -759,8 +843,8 @@ fn scan_media(dir: &str, extensions: &[&str]) -> Vec<BackgroundEntry> {
 }
 
 #[tauri::command]
-fn list_backgrounds(dir: String) -> Vec<BackgroundEntry> {
-    scan_media(&dir, &["mp4", "mov", "mkv", "webm"])
+fn list_backgrounds(app: AppHandle, dir: String) -> Vec<BackgroundEntry> {
+    media_with_bundled(&app, &dir, &["mp4", "mov", "mkv", "webm"])
 }
 
 /// Videonun ilk karesinden küçük bir kapak görseli üretir.
@@ -790,7 +874,7 @@ async fn background_thumbnail(video_path: String) -> Result<String, String> {
     let ffmpeg = which("ffmpeg").ok_or_else(|| "ffmpeg bulunamadı.".to_string())?;
 
     let result = tauri::async_runtime::spawn_blocking(move || {
-        Command::new(&ffmpeg)
+        toolpath::command(&ffmpeg)
             .args(["-y", "-ss", "1", "-i"])
             .arg(&source)
             .args([
@@ -815,8 +899,8 @@ async fn background_thumbnail(video_path: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-fn list_audio(dir: String) -> Vec<BackgroundEntry> {
-    scan_media(&dir, &["mp3", "wav", "m4a", "aac", "ogg"])
+fn list_audio(app: AppHandle, dir: String) -> Vec<BackgroundEntry> {
+    media_with_bundled(&app, &dir, &["mp3", "wav", "m4a", "aac", "ogg"])
 }
 
 /// Kartları, sesi ve arka planı tek bir MP4'te birleştirir.
@@ -929,7 +1013,7 @@ fn list_jobs(dir: String) -> Vec<JobEntry> {
 
         let mut duration = 0.0;
         if has_video && !ffprobe.is_empty() {
-            if let Ok(out) = Command::new(&ffprobe)
+            if let Ok(out) = toolpath::command(&ffprobe)
                 .args(["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0"])
                 .arg(&video)
                 .output()

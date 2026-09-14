@@ -4,7 +4,6 @@
 //! sözleşme: metni al, **MP3 baytları** döndür. Parçalama, hız ve sessizlik
 //! `tts` modülünde motordan bağımsız uygulanıyor.
 
-use std::process::Command;
 
 use serde::{Deserialize, Serialize};
 
@@ -273,7 +272,7 @@ fn system_voices(lang: &str) -> Vec<VoiceInfo> {
         return Vec::new();
     }
 
-    let Ok(output) = Command::new("say").arg("-v").arg("?").output() else {
+    let Ok(output) = crate::toolpath::command("say").arg("-v").arg("?").output() else {
         return Vec::new();
     };
 
@@ -337,7 +336,7 @@ pub fn elevenlabs_usable(ucretsiz: bool, kategori: &str) -> bool {
 }
 
 /// Sıralama için bir sesin özeti.
-pub struct SesOzeti<'a> {
+pub struct SesOzeti {
     pub favori: bool,
     pub kullanilabilir: bool,
     /// Kullanıcının kendi ürettiği ya da kopyaladığı ses mi?
@@ -348,7 +347,6 @@ pub struct SesOzeti<'a> {
     pub dogrulanmis_hedef: bool,
     /// Çok dilli modelle başka dilleri de okuyabiliyor mu?
     pub cok_dilli: bool,
-    pub kategori: &'a str,
 }
 
 /// Hesabın ücretsiz planda olup olmadığını sorar.
@@ -441,7 +439,6 @@ async fn elevenlabs_voices(
                     let id = v.get("voice_id")?.as_str()?.to_string();
                     let name = v.get("name")?.as_str()?.to_string();
                     let kategori = v.get("category").and_then(|c| c.as_str()).unwrap_or("");
-                    let sahibi = v.get("is_owner").and_then(|o| o.as_bool()).unwrap_or(false);
                     let favori = v
                         .get("favorited_at_unix")
                         .map(|f| !f.is_null())
@@ -532,7 +529,6 @@ async fn elevenlabs_voices(
                         anadil_hedef,
                         dogrulanmis_hedef,
                         cok_dilli,
-                        kategori,
                     });
                     Some((
                         sira,
@@ -612,7 +608,7 @@ fn transcode_to_mp3(input: &[u8], input_args: &[&str]) -> Result<Vec<u8>, String
     let out = dir.join(format!("cikis-{}.mp3", std::process::id()));
     std::fs::write(&raw, input).map_err(|e| format!("Geçici ses yazılamadı: {e}"))?;
 
-    let mut cmd = Command::new("ffmpeg");
+    let mut cmd = crate::toolpath::command("ffmpeg");
     cmd.arg("-y");
     for arg in input_args {
         cmd.arg(arg);
@@ -933,7 +929,7 @@ fn system_speak(text: &str, voice: &str) -> Result<Vec<u8>, String> {
     std::fs::create_dir_all(&dir).map_err(|e| format!("Geçici klasör oluşturulamadı: {e}"))?;
     let aiff = dir.join(format!("ses-{}.aiff", std::process::id()));
 
-    let mut cmd = Command::new("say");
+    let mut cmd = crate::toolpath::command("say");
     if !voice.trim().is_empty() {
         cmd.args(["-v", voice]);
     }
@@ -1006,7 +1002,7 @@ pub async fn test_engine(client: &reqwest::Client, engine: Engine) -> Result<Str
 mod ses_sirasi_testleri {
     use super::{dil_adi, elevenlabs_rank, elevenlabs_usable, SesOzeti};
 
-    fn ozet(kategori: &str) -> SesOzeti<'_> {
+    fn ozet(kategori: &str) -> SesOzeti {
         SesOzeti {
             favori: false,
             kullanilabilir: true,
@@ -1014,7 +1010,6 @@ mod ses_sirasi_testleri {
             anadil_hedef: false,
             dogrulanmis_hedef: false,
             cok_dilli: false,
-            kategori,
         }
     }
 

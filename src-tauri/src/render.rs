@@ -5,7 +5,6 @@
 //! ses dosyalarından geldiği için görüntü ve ses kendiliğinden senkron olur.
 
 use std::path::{Path, PathBuf};
-use std::process::Command;
 
 use serde::{Deserialize, Serialize};
 
@@ -64,13 +63,102 @@ fn parse_resolution(value: &str) -> (u32, u32) {
     }
 }
 
-/// Kodek adını ve donanım hızlandırma tercihini ffmpeg kodlayıcısına çevirir.
-fn encoder_for(codec: &str, hardware: bool) -> &'static str {
-    match (codec, hardware) {
-        ("h265", true) => "hevc_videotoolbox",
-        ("h265", false) => "libx265",
-        (_, true) => "h264_videotoolbox",
-        _ => "libx264",
+/// Kodeğin yazılım kodlayıcısı — her platformda var, son çare bu.
+pub fn software_encoder(codec: &str) -> &'static str {
+    if codec == "h265" {
+        "libx265"
+    } else {
+        "libx264"
+    }
+}
+
+/// Kodlayıcı adayları, tercih sırasıyla; yazılım kodlayıcı her zaman sonda.
+///
+/// Eskiden donanım hızlandırma açıkken platforma bakılmadan `videotoolbox`
+/// dönüyordu. O yalnızca macOS'ta var — Windows'ta render
+/// `Unknown encoder 'h264_videotoolbox'` ile anında düşüyordu.
+pub fn encoder_candidates(codec: &str, hardware: bool, os: &str) -> Vec<&'static str> {
+    let yazilim = software_encoder(codec);
+    if !hardware {
+        return vec![yazilim];
+    }
+    let h265 = codec == "h265";
+    let mut adaylar: Vec<&'static str> = match os {
+        "macos" => vec![if h265 { "hevc_videotoolbox" } else { "h264_videotoolbox" }],
+        // NVIDIA, Intel Quick Sync, AMD — makinede hangisi varsa.
+        "windows" => {
+            if h265 {
+                vec!["hevc_nvenc", "hevc_qsv", "hevc_amf"]
+            } else {
+                vec!["h264_nvenc", "h264_qsv", "h264_amf"]
+            }
+        }
+        _ => {
+            if h265 {
+                vec!["hevc_nvenc", "hevc_qsv"]
+            } else {
+                vec!["h264_nvenc", "h264_qsv"]
+            }
+        }
+    };
+    adaylar.push(yazilim);
+    adaylar
+}
+
+/// Bir kodlayıcının bu makinede gerçekten çalışıp çalışmadığını tek karelik
+/// bir kodlamayla yoklar.
+///
+/// `ffmpeg -encoders` listesine bakmak yetmiyor: ffmpeg `h264_nvenc` ile
+/// derlenmiş olabilir ama makinede NVIDIA kartı yoksa kodlama düşer. Asıl
+/// render'daki piksel biçimini (`yuv420p`) kullanıyoruz; bazı donanım
+/// kodlayıcıları onu kabul etmiyor ve bunu burada öğrenmek istiyoruz.
+fn probe_encoder(ffmpeg: &str, encoder: &str) -> bool {
+    crate::toolpath::command(ffmpeg)
+        .args([
+            "-hide_banner", "-loglevel", "error",
+            "-f", "lavfi", "-i", "color=c=black:s=640x360:d=0.2",
+            "-frames:v", "1", "-pix_fmt", "yuv420p",
+            "-c:v", encoder, "-f", "null", "-",
+        ])
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false)
+}
+
+/// Seçilen kodlayıcıların önbelleği: yoklama her render'da tekrarlanmasın.
+static SECILEN_KODLAYICI: std::sync::OnceLock<
+    std::sync::Mutex<std::collections::HashMap<String, &'static str>>,
+> = std::sync::OnceLock::new();
+
+fn onbellek() -> &'static std::sync::Mutex<std::collections::HashMap<String, &'static str>> {
+    SECILEN_KODLAYICI.get_or_init(|| std::sync::Mutex::new(std::collections::HashMap::new()))
+}
+
+/// Bu makinede çalışan ilk kodlayıcıyı seçer.
+fn pick_encoder(ffmpeg: &str, codec: &str, hardware: bool) -> &'static str {
+    let anahtar = format!("{codec}|{hardware}");
+    if let Some(k) = onbellek().lock().ok().and_then(|m| m.get(&anahtar).copied()) {
+        return k;
+    }
+
+    let yazilim = software_encoder(codec);
+    let secilen = encoder_candidates(codec, hardware, std::env::consts::OS)
+        .into_iter()
+        // Yazılım kodlayıcıyı yoklamıyoruz: yoksa render zaten açık bir hatayla düşer.
+        .find(|k| *k == yazilim || probe_encoder(ffmpeg, k))
+        .unwrap_or(yazilim);
+
+    if let Ok(mut m) = onbellek().lock() {
+        m.insert(anahtar, secilen);
+    }
+    secilen
+}
+
+/// Yoklamayı geçip gerçek render'da düşen kodlayıcıyı önbellekten çıkarır;
+/// bir sonraki render doğrudan yazılım kodlayıcıyla başlasın.
+fn forget_encoder(codec: &str, hardware: bool, yerine: &'static str) {
+    if let Ok(mut m) = onbellek().lock() {
+        m.insert(format!("{codec}|{hardware}"), yerine);
     }
 }
 
@@ -99,7 +187,7 @@ fn tool_path(name: &str) -> Result<String, String> {
 
 /// İstenen uzunlukta sessizlik dosyası üretir.
 fn make_silence(ffmpeg: &str, seconds: f64, path: &Path) -> Result<(), String> {
-    let output = Command::new(ffmpeg)
+    let output = crate::toolpath::command(ffmpeg)
         .args([
             "-y",
             "-f",
@@ -145,7 +233,7 @@ fn concat_audio(
     std::fs::write(&list_path, body).map_err(|e| format!("Ses listesi yazılamadı: {e}"))?;
 
     let out = work_dir.join("ses.mp3");
-    let output = Command::new(ffmpeg)
+    let output = crate::toolpath::command(ffmpeg)
         .args(["-y", "-f", "concat", "-safe", "0", "-i"])
         .arg(&list_path)
         .args(["-c", "copy"])
@@ -248,7 +336,7 @@ fn build_filter(
 }
 
 fn probe_duration(ffprobe: &str, path: &Path) -> Result<f64, String> {
-    let output = Command::new(ffprobe)
+    let output = crate::toolpath::command(ffprobe)
         .args(["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0"])
         .arg(path)
         .output()
@@ -261,6 +349,27 @@ fn probe_duration(ffprobe: &str, path: &Path) -> Result<f64, String> {
 }
 
 /// Kartları, sesi ve arka planı tek bir MP4'te birleştirir.
+/// ffmpeg'i çalıştırır; çalışırken iptal edilebilsin diye pid'ini tutar.
+fn run_ffmpeg(mut cmd: std::process::Command) -> Result<std::process::Output, String> {
+    let child = cmd
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .map_err(|e| format!("ffmpeg çalıştırılamadı: {e}"))?;
+
+    if let Ok(mut guard) = RUNNING.lock() {
+        *guard = Some(child.id());
+    }
+
+    let output = child
+        .wait_with_output()
+        .map_err(|e| format!("ffmpeg beklenirken hata: {e}"));
+
+    if let Ok(mut guard) = RUNNING.lock() {
+        *guard = None;
+    }
+    output
+}
+
 pub fn render(options: &RenderOptions) -> Result<RenderResult, String> {
     if options.segments.is_empty() {
         return Err("Birleştirilecek bölüm yok.".to_string());
@@ -291,44 +400,11 @@ pub fn render(options: &RenderOptions) -> Result<RenderResult, String> {
 
     let (width, height) = parse_resolution(&options.resolution);
 
-    let mut cmd = Command::new(&ffmpeg);
-    cmd.arg("-y");
-
-    // 0 — arka plan
-    match background {
-        Some(path) => {
-            cmd.args(["-stream_loop", "-1", "-i"]).arg(path);
-        }
-        None => {
-            cmd.args([
-                "-f",
-                "lavfi",
-                "-i",
-                &format!(
-                    "color=c={FALLBACK_BACKGROUND}:s={width}x{height}:r={}",
-                    options.fps
-                ),
-            ]);
-        }
-    }
-
-    // 1 — birleştirilmiş konuşma sesi
-    cmd.arg("-i").arg(&audio_path);
-
-    // 2.. — kart görselleri
-    for segment in &options.segments {
-        cmd.arg("-i").arg(&segment.card_path);
-    }
-
     // Son girdi — arka plan müziği (varsa). Konuşmadan kısaysa döngüye alınır.
     let music = options
         .music_path
         .as_deref()
         .filter(|p| !p.trim().is_empty() && Path::new(p).exists());
-
-    if let Some(path) = music {
-        cmd.args(["-stream_loop", "-1", "-i"]).arg(path);
-    }
 
     let music_volume = music.map(|_| options.music_volume.clamp(0.0, 1.0));
 
@@ -346,55 +422,90 @@ pub fn render(options: &RenderOptions) -> Result<RenderResult, String> {
     );
     let last_label = format!("v{}", options.segments.len() - 1);
 
-    cmd.args(["-filter_complex", &filter]);
-    cmd.args(["-map", &format!("[{last_label}]")]);
-    cmd.args(["-map", if music_volume.is_some() { "[ses]" } else { "1:a" }]);
-    let encoder = encoder_for(&options.codec, options.hardware_accel);
-    cmd.args(["-c:v", encoder]);
+    // Komutu kodlayıcıdan bağımsız kuruyoruz ki donanım kodlayıcı düşerse
+    // aynı girdilerle yazılım kodlayıcıyla yeniden deneyebilelim.
+    let komut_kur = |encoder: &str| {
+        let mut cmd = crate::toolpath::command(&ffmpeg);
+        cmd.arg("-y");
 
-    // `preset` yalnızca yazılım kodlayıcılarda var; VideoToolbox reddediyor.
-    if encoder.starts_with("libx") {
-        cmd.args(["-preset", "veryfast"]);
-    }
+        // 0 — arka plan
+        match background {
+            Some(path) => {
+                cmd.args(["-stream_loop", "-1", "-i"]).arg(path);
+            }
+            None => {
+                cmd.args([
+                    "-f",
+                    "lavfi",
+                    "-i",
+                    &format!(
+                        "color=c={FALLBACK_BACKGROUND}:s={width}x{height}:r={}",
+                        options.fps
+                    ),
+                ]);
+            }
+        }
 
-    if options.bitrate_mbps > 0 {
-        cmd.args(["-b:v", &format!("{}M", options.bitrate_mbps)]);
-    }
+        // 1 — birleştirilmiş konuşma sesi
+        cmd.arg("-i").arg(&audio_path);
 
-    cmd.args([
-        "-pix_fmt",
-        "yuv420p",
-        "-r",
-        &options.fps.to_string(),
-        "-c:a",
-        "aac",
-        "-b:a",
-        "192k",
-        "-shortest",
-    ]);
-    cmd.arg(&out_path);
+        // 2.. — kart görselleri
+        for segment in &options.segments {
+            cmd.arg("-i").arg(&segment.card_path);
+        }
 
-    // Süreci elde tutuyoruz ki iptal edildiğinde öldürebilelim.
-    let child = cmd
-        .stderr(std::process::Stdio::piped())
-        .spawn()
-        .map_err(|e| format!("ffmpeg çalıştırılamadı: {e}"))?;
+        if let Some(path) = music {
+            cmd.args(["-stream_loop", "-1", "-i"]).arg(path);
+        }
 
-    if let Ok(mut guard) = RUNNING.lock() {
-        *guard = Some(child.id());
-    }
+        cmd.args(["-filter_complex", &filter]);
+        cmd.args(["-map", &format!("[{last_label}]")]);
+        cmd.args(["-map", if music_volume.is_some() { "[ses]" } else { "1:a" }]);
+        cmd.args(["-c:v", encoder]);
 
-    let output = child
-        .wait_with_output()
-        .map_err(|e| format!("ffmpeg beklenirken hata: {e}"))?;
+        // `preset` yalnızca yazılım kodlayıcılarda var; donanım kodlayıcıları
+        // kendi ön ayar adlarını kullanıyor ya da reddediyor.
+        if encoder.starts_with("libx") {
+            cmd.args(["-preset", "veryfast"]);
+        }
 
-    if let Ok(mut guard) = RUNNING.lock() {
-        *guard = None;
+        if options.bitrate_mbps > 0 {
+            cmd.args(["-b:v", &format!("{}M", options.bitrate_mbps)]);
+        }
+
+        cmd.args([
+            "-pix_fmt",
+            "yuv420p",
+            "-r",
+            &options.fps.to_string(),
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            "-shortest",
+        ]);
+        cmd.arg(&out_path);
+        cmd
+    };
+
+    let yazilim = software_encoder(&options.codec);
+    let encoder = pick_encoder(&ffmpeg, &options.codec, options.hardware_accel);
+    let mut output = run_ffmpeg(komut_kur(encoder))?;
+
+    // Donanım kodlayıcı yoklamayı geçip gerçek işte düşebiliyor (sürücü,
+    // bellek, çözünürlük sınırı). Kullanıcı iptal etmediyse bir kez yazılım
+    // kodlayıcıyla yeniden dene.
+    if !output.status.success() && !crate::cancelled() && encoder != yazilim {
+        let _ = std::fs::remove_file(&out_path);
+        forget_encoder(&options.codec, options.hardware_accel, yazilim);
+        output = run_ffmpeg(komut_kur(yazilim))?;
     }
 
     if !output.status.success() {
-        // Sinyalle sonlandırıldıysa bu bir hata değil, kullanıcı iptali.
-        if output.status.code().is_none() {
+        // Unix'te sinyalle sonlandırmada çıkış kodu olmuyor; Windows'ta
+        // `taskkill /F` 1 döndürüyor. İkisini de iptal bayrağıyla ayırıyoruz —
+        // yoksa Windows'ta iptal "birleştirilemedi" hatası gibi görünürdü.
+        if crate::cancelled() || output.status.code().is_none() {
             let _ = std::fs::remove_file(&out_path);
             return Err("İptal edildi.".to_string());
         }
@@ -546,12 +657,160 @@ mod tests {
         assert_eq!(super::parse_resolution(""), (1080, 1920));
     }
 
+    /// Kendi girdilerini üreten uçtan uca render: paketle gelen gradyan ve
+    /// ambiyansla, donanım hızlandırma açık. Windows CI'da da koşuyor — orada
+    /// concat listesindeki `C:\\` yolları, kodlayıcı seçimi ve müzik döngüsü
+    /// birlikte sınanıyor.
+    /// `cargo test canli_uctan_uca -- --ignored --nocapture`
     #[test]
-    fn kodek_secimi_dogru() {
-        assert_eq!(super::encoder_for("h264", false), "libx264");
-        assert_eq!(super::encoder_for("h264", true), "h264_videotoolbox");
-        assert_eq!(super::encoder_for("h265", false), "libx265");
-        assert_eq!(super::encoder_for("h265", true), "hevc_videotoolbox");
+    #[ignore]
+    fn canli_uctan_uca_render() {
+        let ffmpeg = super::tool_path("ffmpeg").expect("ffmpeg gerekli");
+        let medya = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("resources/media");
+        let gradyan = medya.join("varsayilan-gradyan.mp4");
+        let ambiyans = medya.join("varsayilan-ambiyans.mp3");
+        assert!(gradyan.is_file() && ambiyans.is_file(), "paketle gelen medya eksik");
+
+        let dir = std::env::temp_dir().join("rvmaker-uctan-uca");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+
+        let uret = |args: &[&str]| {
+            let ok = crate::toolpath::command(&ffmpeg)
+                .args(["-hide_banner", "-loglevel", "error", "-y"])
+                .args(args)
+                .status()
+                .map(|s| s.success())
+                .unwrap_or(false);
+            assert!(ok, "girdi üretilemedi: {args:?}");
+        };
+
+        let mut segments = Vec::new();
+        for (i, (sure, renk)) in [(2.0_f64, "white"), (3.0, "gold")].iter().enumerate() {
+            let ses = dir.join(format!("parca{i}.mp3"));
+            let kart = dir.join(format!("kart{i}.png"));
+            let kaynak = format!("sine=frequency={}:duration={sure}", 300 + 100 * i);
+            uret(&["-f", "lavfi", "-i", &kaynak, "-c:a", "libmp3lame", ses.to_str().unwrap()]);
+            let karti = format!("color=c={renk}:s=900x400:d=1");
+            uret(&["-f", "lavfi", "-i", &karti, "-frames:v", "1", kart.to_str().unwrap()]);
+            segments.push(super::Segment {
+                card_path: kart.to_string_lossy().to_string(),
+                audio_path: ses.to_string_lossy().to_string(),
+                duration_sec: *sure,
+            });
+        }
+
+        let options = super::RenderOptions {
+            segments,
+            background_path: Some(gradyan.to_string_lossy().to_string()),
+            music_path: Some(ambiyans.to_string_lossy().to_string()),
+            music_volume: 0.1,
+            fps: 30,
+            out_path: dir.join("sonuc.mp4").to_string_lossy().to_string(),
+            resolution: "1080x1920".to_string(),
+            codec: "h264".to_string(),
+            bitrate_mbps: 6,
+            hardware_accel: true,
+            outro_sec: 2.0,
+        };
+
+        let sonuc = super::render(&options).expect("render başarısız");
+        println!(
+            "işletim sistemi: {} | süre {:.2} sn | {:.2} MB",
+            std::env::consts::OS,
+            sonuc.duration_sec,
+            sonuc.size_bytes as f64 / 1_048_576.0
+        );
+
+        // 2 + 3 sn konuşma + 2 sn kapanış = 7 sn
+        assert!(
+            (sonuc.duration_sec - 7.0).abs() < 0.4,
+            "video süresi beklenenden farklı: {:.2}",
+            sonuc.duration_sec
+        );
+
+        // Konteyner süresi değil gerçek ses örneği: `dynaudnorm` dersi.
+        let ham = crate::toolpath::command(&ffmpeg)
+            .args(["-hide_banner", "-loglevel", "error", "-i"])
+            .arg(&sonuc.path)
+            .args(["-map", "0:a", "-ac", "1", "-ar", "8000", "-f", "s16le", "-"])
+            .output()
+            .unwrap();
+        let ses_sn = ham.stdout.len() as f64 / 16_000.0;
+        println!("videodaki gerçek ses: {ses_sn:.2} sn");
+        assert!(ses_sn > 6.5, "ses kırpılmış: {ses_sn:.2} sn");
+    }
+
+    #[test]
+    fn donanim_kapaliyken_her_yerde_yazilim() {
+        for os in ["macos", "windows", "linux"] {
+            assert_eq!(super::encoder_candidates("h264", false, os), vec!["libx264"]);
+            assert_eq!(super::encoder_candidates("h265", false, os), vec!["libx265"]);
+        }
+    }
+
+    #[test]
+    fn macos_videotoolbox_dener_sonra_yazilima_duser() {
+        assert_eq!(
+            super::encoder_candidates("h264", true, "macos"),
+            vec!["h264_videotoolbox", "libx264"]
+        );
+        assert_eq!(
+            super::encoder_candidates("h265", true, "macos"),
+            vec!["hevc_videotoolbox", "libx265"]
+        );
+    }
+
+    /// Kullanıcının Windows makinesinde ölçülen hata: donanım hızlandırma
+    /// açıkken `h264_videotoolbox` seçiliyor ve render anında düşüyordu.
+    #[test]
+    fn windowsta_videotoolbox_asla_secilmez() {
+        for codec in ["h264", "h265"] {
+            let adaylar = super::encoder_candidates(codec, true, "windows");
+            assert!(
+                adaylar.iter().all(|k| !k.contains("videotoolbox")),
+                "Windows adaylarında videotoolbox olmamalı: {adaylar:?}"
+            );
+            assert_eq!(
+                *adaylar.last().unwrap(),
+                super::software_encoder(codec),
+                "son çare yazılım kodlayıcı olmalı"
+            );
+        }
+        assert_eq!(
+            super::encoder_candidates("h264", true, "windows"),
+            vec!["h264_nvenc", "h264_qsv", "h264_amf", "libx264"]
+        );
+    }
+
+    /// Bu makinede gerçekten çalışan kodlayıcıyı seçer ve onunla bir saniyelik
+    /// video kodlar. Windows CI'da da koşuyor:
+    /// `cargo test canli_kodlayici -- --ignored --nocapture`
+    #[test]
+    #[ignore]
+    fn canli_kodlayici_secimi() {
+        let ffmpeg = super::tool_path("ffmpeg").expect("ffmpeg gerekli");
+        let secilen = super::pick_encoder(&ffmpeg, "h264", true);
+        println!("işletim sistemi: {}", std::env::consts::OS);
+        println!("seçilen kodlayıcı: {secilen}");
+        assert!(
+            !(std::env::consts::OS != "macos" && secilen.contains("videotoolbox")),
+            "macOS dışında videotoolbox seçildi"
+        );
+
+        let cikti = std::env::temp_dir().join("rvmaker-kodlayici.mp4");
+        let ok = crate::toolpath::command(&ffmpeg)
+            .args([
+                "-hide_banner", "-loglevel", "error", "-y",
+                "-f", "lavfi", "-i", "color=c=navy:s=1080x1920:d=1:r=30",
+                "-pix_fmt", "yuv420p", "-c:v", secilen,
+            ])
+            .arg(&cikti)
+            .status()
+            .map(|s| s.success())
+            .unwrap_or(false);
+        assert!(ok, "{secilen} ile 1080x1920 kodlama başarısız");
+        println!("1080x1920 kodlama başarılı");
     }
 
     #[test]

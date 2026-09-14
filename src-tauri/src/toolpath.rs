@@ -27,38 +27,88 @@ pub fn home_dir() -> Option<PathBuf> {
         .map(PathBuf::from)
 }
 
-/// Bir aracın tam yolunu bulur.
+/// Alt süreç komutu kurar.
 ///
-/// `which` yalnızca Unix'te var; Windows'ta karşılığı `where` ve birden çok
-/// satır dönebiliyor, ilkini alıyoruz.
+/// Windows'ta GUI uygulamasından başlatılan her konsol programı (ffmpeg,
+/// where, node) kendi konsol penceresini açıp kapatıyor — kullanıcı her
+/// seslendirme parçasında siyah bir pencerenin yanıp söndüğünü görüyor.
+/// `CREATE_NO_WINDOW` bunu engelliyor.
+pub fn command<S: AsRef<std::ffi::OsStr>>(program: S) -> std::process::Command {
+    #[allow(unused_mut)]
+    let mut cmd = std::process::Command::new(program);
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+        const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+        cmd.creation_flags(CREATE_NO_WINDOW);
+    }
+    cmd
+}
+
+/// PATH girdilerini ayıran karakter. Windows'ta `;` — orada `:` sürücü
+/// harflerinde (`C:\\`) geçtiği için ayırıcı olarak kullanılamaz.
+pub const PATH_SEP: char = if cfg!(target_os = "windows") { ';' } else { ':' };
+
+/// `which`/`where` çıktısından çalıştırılabilir yolu seçer.
+///
+/// Windows'ta npm global kurulumu aynı araç için hem uzantısız bir Unix
+/// betiği (`bird`) hem de `bird.cmd` üretiyor ve `where` ilk satırda
+/// uzantısızı veriyor. Onu çalıştırmak "geçerli bir Win32 uygulaması değil"
+/// (os error 193) hatasıyla düşüyordu. Windows'ta gerçekten çalıştırılabilir
+/// uzantılara öncelik veriyoruz.
+pub fn pick_where_line(stdout: &str, windows: bool) -> Option<String> {
+    let satirlar: Vec<&str> = stdout.lines().map(str::trim).filter(|l| !l.is_empty()).collect();
+    let secilen = if windows {
+        [".exe", ".cmd", ".bat"]
+            .iter()
+            .find_map(|uzanti| {
+                satirlar
+                    .iter()
+                    .find(|l| l.to_ascii_lowercase().ends_with(uzanti))
+            })
+            .or_else(|| satirlar.first())
+    } else {
+        satirlar.first()
+    };
+    secilen.map(|s| s.to_string())
+}
+
+/// Bir aracın tam yolunu bulur. Unix'te `which`, Windows'ta `where`.
 pub fn find_tool(name: &str) -> Option<String> {
-    let arayici = if cfg!(target_os = "windows") { "where" } else { "which" };
-    let out = std::process::Command::new(arayici).arg(name).output().ok()?;
+    let windows = cfg!(target_os = "windows");
+    let arayici = if windows { "where" } else { "which" };
+    let out = command(arayici).arg(name).output().ok()?;
     if !out.status.success() {
         return None;
     }
-    let yol = String::from_utf8_lossy(&out.stdout)
-        .lines()
-        .next()
-        .unwrap_or_default()
-        .trim()
-        .to_string();
-    if yol.is_empty() {
-        None
-    } else {
-        Some(yol)
+    pick_where_line(&String::from_utf8_lossy(&out.stdout), windows)
+}
+
+/// Bir dizini PATH'in başına ekler — platformun ayırıcısıyla.
+pub fn prepend(dir: &str, current: &str) -> String {
+    prepend_with(dir, current, PATH_SEP)
+}
+
+/// `prepend`'in ayırıcısı açıkça verilen, test edilebilir hâli.
+pub fn prepend_with(dir: &str, current: &str, sep: char) -> String {
+    if dir.is_empty() {
+        return current.to_string();
     }
+    if current.is_empty() {
+        return dir.to_string();
+    }
+    format!("{dir}{sep}{current}")
 }
 
 /// Çalışan bir süreci sonlandırır. Windows'ta `kill` yok.
 pub fn kill_pid(pid: u32) {
     let _ = if cfg!(target_os = "windows") {
-        std::process::Command::new("taskkill")
+        command("taskkill")
             .args(["/PID", &pid.to_string(), "/T", "/F"])
             .output()
     } else {
         // ffmpeg SIGTERM ile temiz kapanır ve yarım dosyayı bırakır.
-        std::process::Command::new("kill").arg(pid.to_string()).output()
+        command("kill").arg(pid.to_string()).output()
     };
 }
 
@@ -70,6 +120,11 @@ const HOME_DIRS: [&str; 3] = [".local/bin", "bin", ".cargo/bin"];
 /// Mevcut girdiler önde kalıyor: kullanıcının kendi kurduğu bir sürüm varsa
 /// bizim eklediğimiz dizin onu gölgelemesin.
 pub fn merge(current: &str, extra: &[PathBuf]) -> String {
+    merge_with(current, extra, PATH_SEP)
+}
+
+/// `merge`'ün ayırıcısı açıkça verilen, test edilebilir hâli.
+pub fn merge_with(current: &str, extra: &[PathBuf], sep: char) -> String {
     let mut out: Vec<String> = Vec::new();
 
     let mut push = |value: String| {
@@ -79,14 +134,14 @@ pub fn merge(current: &str, extra: &[PathBuf]) -> String {
         out.push(value);
     };
 
-    for entry in current.split(':') {
+    for entry in current.split(sep) {
         push(entry.to_string());
     }
     for dir in extra {
         push(dir.to_string_lossy().to_string());
     }
 
-    out.join(":")
+    out.join(&sep.to_string())
 }
 
 /// nvm'nin kurduğu sürümlerin `bin` klasörlerini toplar.
@@ -129,20 +184,21 @@ pub fn augment() {
 
 #[cfg(test)]
 mod tests {
-    use super::merge;
+    use super::{merge_with, pick_where_line, prepend_with};
     use std::path::PathBuf;
 
     #[test]
     fn mevcut_girdileri_onde_tutar() {
-        let birlesik = merge("/usr/bin:/bin", &[PathBuf::from("/opt/homebrew/bin")]);
+        let birlesik = merge_with("/usr/bin:/bin", &[PathBuf::from("/opt/homebrew/bin")], ':');
         assert_eq!(birlesik, "/usr/bin:/bin:/opt/homebrew/bin");
     }
 
     #[test]
     fn yinelenenleri_atar() {
-        let birlesik = merge(
+        let birlesik = merge_with(
             "/usr/bin:/opt/homebrew/bin:/bin",
             &[PathBuf::from("/opt/homebrew/bin"), PathBuf::from("/usr/bin")],
+            ':',
         );
         assert_eq!(birlesik, "/usr/bin:/opt/homebrew/bin:/bin");
     }
@@ -151,7 +207,7 @@ mod tests {
     fn bos_girdiler_sizmaz() {
         // PATH'te art arda iki iki nokta olması boş girdi üretir; bunu
         // taşımak "geçerli dizin" anlamına gelir ve istemediğimiz bir şey.
-        let birlesik = merge("/usr/bin::/bin:", &[]);
+        let birlesik = merge_with("/usr/bin::/bin:", &[], ':');
         assert_eq!(birlesik, "/usr/bin:/bin");
     }
 
@@ -181,9 +237,61 @@ mod tests {
         }
     }
 
+    /// Windows PATH'inde sürücü harfleri `:` içeriyor; eskiden `:` ile
+    /// bölündüğü için `C:\\Windows` "C" ve "\\Windows" diye parçalanıyordu.
+    #[test]
+    fn windows_pathinde_surucu_harfleri_bozulmaz() {
+        let birlesik = merge_with(
+            r"C:\Windows;C:\Program Files\nodejs;C:\Windows",
+            &[PathBuf::from(r"C:\Users\m\AppData\Roaming\npm")],
+            ';',
+        );
+        assert_eq!(
+            birlesik,
+            r"C:\Windows;C:\Program Files\nodejs;C:\Users\m\AppData\Roaming\npm"
+        );
+    }
+
+    #[test]
+    fn basa_ekleme_platform_ayiricisini_kullanir() {
+        assert_eq!(prepend_with("/a", "/b:/c", ':'), "/a:/b:/c");
+        assert_eq!(
+            prepend_with(r"C:\npm", r"C:\Windows", ';'),
+            r"C:\npm;C:\Windows"
+        );
+        assert_eq!(prepend_with("", "/b", ':'), "/b");
+        assert_eq!(prepend_with("/a", "", ':'), "/a");
+    }
+
+    /// Kullanıcının Windows makinesinde ölçülen `where bird` çıktısı.
+    #[test]
+    fn windowsta_calistirilabilir_uzantiyi_secer() {
+        let cikti = "C:\\Users\\m\\AppData\\Roaming\\npm\\bird\r\n\
+                     C:\\Users\\m\\AppData\\Roaming\\npm\\bird.cmd\r\n";
+        assert_eq!(
+            pick_where_line(cikti, true).as_deref(),
+            Some(r"C:\Users\m\AppData\Roaming\npm\bird.cmd")
+        );
+    }
+
+    #[test]
+    fn windowsta_exe_cmd_den_once_gelir() {
+        let cikti = "C:\\x\\ffmpeg.cmd\nC:\\y\\ffmpeg.exe\n";
+        assert_eq!(pick_where_line(cikti, true).as_deref(), Some(r"C:\y\ffmpeg.exe"));
+    }
+
+    #[test]
+    fn unixte_ilk_satiri_alir() {
+        assert_eq!(
+            pick_where_line("/opt/homebrew/bin/ffmpeg\n/usr/local/bin/ffmpeg\n", false).as_deref(),
+            Some("/opt/homebrew/bin/ffmpeg")
+        );
+        assert_eq!(pick_where_line("", false), None);
+    }
+
     #[test]
     fn bos_pathi_kurtarir() {
-        let birlesik = merge("", &[PathBuf::from("/opt/homebrew/bin")]);
+        let birlesik = merge_with("", &[PathBuf::from("/opt/homebrew/bin")], ':');
         assert_eq!(birlesik, "/opt/homebrew/bin");
     }
 }

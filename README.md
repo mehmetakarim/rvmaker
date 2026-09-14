@@ -56,7 +56,14 @@ tekrarlanıyor. RVMaker bu zinciri tek ekrana indiriyor.
    winget install Gyan.FFmpeg
    ```
 
-3. Uygulamayı aç. Kurulum ekranı eksik bir şey varsa söylüyor.
+3. Uygulamayı aç. İlk açılışta **kurulum ekranı** geliyor ve neyin hazır,
+   neyin eksik olduğunu gösteriyor; ffmpeg gibi zorunlu bir araç sonradan
+   eksik kalırsa ekran açılışta yeniden çıkıyor.
+
+Kutudan çıktığı gibi video üretebilmen için paketin içinde **varsayılan bir
+arka plan videosu** (yumuşak bir gradyan) ve **telifsiz bir ambiyans müziği**
+geliyor. Kendi videolarını ve müziklerini **Ayarlar → Video** altından klasör
+seçerek ekleyebilirsin; varsayılanlar listede kalmaya devam ediyor.
 
 > macOS'ta paket imzalı değil; ilk açılışta Gatekeeper uyarırsa
 > **Sistem Ayarları → Gizlilik ve Güvenlik → Yine de aç** demen gerekiyor.
@@ -96,11 +103,15 @@ Reddit'teki "gönderi + yorumlar" yapısının karşılığı **tweet + yanıtla
 Ayrıca **thread** modu var: yazarın kendi devam tweet'leri, atıldığı sırayla.
 
 X içeriği [`bird`](https://www.npmjs.com/package/@steipete/bird) aracıyla
-çekiliyor:
+çekiliyor. [Node.js](https://nodejs.org) kurulu olmalı (macOS ve Windows):
 
 ```bash
 npm install -g @steipete/bird
 ```
+
+> `@steipete/bird` paketi npm'de hâlâ kurulabiliyor, ancak geliştiricisi
+> tarafından bakımı bırakılmış durumda. X tarafı ileride bu araca bağlı
+> kalmayacak şekilde değişebilir.
 
 Ayarlardan `auth_token` ve `ct0` çerezleri giriliyor. İkisi **aynı oturumdan,
 aynı anda** alınmalı — eşleşmezlerse X isteği reddediyor.

@@ -632,7 +632,7 @@ const fileNameSample = computed(() => {
               @click="openFolder(settings.backgroundsDir)"
             >
               <Folder :size="14" />
-              {{ settings.backgroundsDir }}
+              {{ settings.backgroundsDir || "Seçilmedi — yalnızca uygulamayla gelenler" }}
             </button>
             <RvButton variant="secondary" size="sm" @click="pickFolder('backgrounds')">
               Değiştir
@@ -648,7 +648,7 @@ const fileNameSample = computed(() => {
               @click="openFolder(settings.musicDir)"
             >
               <Folder :size="14" />
-              {{ settings.musicDir }}
+              {{ settings.musicDir || "Seçilmedi — yalnızca uygulamayla gelenler" }}
             </button>
             <RvButton variant="secondary" size="sm" @click="pickFolder('music')">
               Değiştir

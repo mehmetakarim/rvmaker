@@ -55,6 +55,16 @@ export interface Preset {
 }
 
 /** Hazırlanmakta olan videonun taslağı: kaynak → içerik → ses → görünüm. */
+/** Uygulamayla gelen varsayılan müziğin kimliği (dosya adı). */
+const VARSAYILAN_MUZIK = "varsayilan-ambiyans";
+
+/** Süreyi kısa ve okunur yazar: 20 sn'lik döngü "0 dk" görünmesin. */
+function kisaSure(saniye: number): string {
+  if (saniye <= 0) return "";
+  if (saniye < 60) return `${Math.round(saniye)} sn`;
+  return `${Math.round(saniye / 60)} dk`;
+}
+
 export const useDraftStore = defineStore("draft", () => {
   const url = ref("");
   const urlTouched = ref(false);
@@ -859,7 +869,9 @@ export const useDraftStore = defineStore("draft", () => {
   // --- Görünüm ---
   const look = ref<LookSettings>({
     backgroundVideoId: "",
-    backgroundAudioId: "silent",
+    // İlk kez kuran kullanıcı sessiz bir videoyla karşılaşmasın; paketle gelen
+    // telifsiz ambiyans varsayılan. Bulunamazsa `loadMusic` sessize düşer.
+    backgroundAudioId: VARSAYILAN_MUZIK,
     audioVolume: 0.15,
     cardTheme: "dark",
     fontSize: 40,
@@ -883,10 +895,13 @@ export const useDraftStore = defineStore("draft", () => {
       backgroundVideos.value = found.map((b) => ({
         id: b.id,
         label: b.label,
-        detail:
-          b.width > 0
-            ? `${b.width}×${b.height} · ${Math.round(b.duration_sec / 60)} dk`
-            : "yerel dosya",
+        detail: [
+          b.bundled ? "uygulamayla gelir" : "",
+          b.width > 0 ? `${b.width}×${b.height}` : "yerel dosya",
+          kisaSure(b.duration_sec),
+        ]
+          .filter(Boolean)
+          .join(" · "),
         local: true,
       }));
 
@@ -955,11 +970,16 @@ export const useDraftStore = defineStore("draft", () => {
     ];
     musicPaths.value = Object.fromEntries(found.map((a) => [a.id, a.path]));
 
+    // Hatırlanan müzik artık yoksa (klasör değişti, dosya silindi) sessize
+    // değil, varsa paketle gelen ambiyansa düş. Bilerek "Sessiz" seçen
+    // kullanıcıya dokunmuyoruz — o kimlik her zaman geçerli.
     if (
       look.value.backgroundAudioId !== "silent" &&
       !musicPaths.value[look.value.backgroundAudioId]
     ) {
-      look.value.backgroundAudioId = "silent";
+      look.value.backgroundAudioId = musicPaths.value[VARSAYILAN_MUZIK]
+        ? VARSAYILAN_MUZIK
+        : "silent";
     }
   }
 

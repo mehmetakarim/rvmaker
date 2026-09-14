@@ -133,7 +133,7 @@ function step(delta: number) {
             Arka plan kitaplığı boş — video düz zemin üzerine üretilir. Aşağıdan yerel bir dosya
             seçebilir ya da Ayarlar'dan klasörü değiştirebilirsin.
           </span>
-          <span class="rv-mono path-note">{{ settings.backgroundsDir }}</span>
+          <span v-if="settings.backgroundsDir" class="rv-mono path-note">{{ settings.backgroundsDir }}</span>
         </div>
 
         <div class="tiles">

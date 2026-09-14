@@ -28,6 +28,36 @@ import {
 
 type Theme = "dark" | "light";
 
+/** Bir ayar grubunu localStorage'da tutan ref.
+ *
+ *  Eskiden `video`, `translation`, `defaults` ve `advanced` hiç kaydedilmiyordu:
+ *  kullanıcı donanım hızlandırmayı kapatsa bile uygulama her açılışta varsayılana
+ *  dönüyordu (Windows'ta bu, render'ın her seferinde düşmesi demekti).
+ *  Kayıtlı değer varsayılanların üstüne yazılıyor; sonradan eklenen alanlar
+ *  eski kayıtlarda eksik olsa bile varsayılanıyla geliyor. */
+function kaliciRef<T extends Record<string, unknown>>(anahtar: string, varsayilan: T) {
+  let kayitli: Partial<T> = {};
+  try {
+    const ham = localStorage.getItem(anahtar);
+    if (ham) kayitli = JSON.parse(ham) as Partial<T>;
+  } catch {
+    /* bozuk kayıt ya da kapalı depolama — varsayılanla devam */
+  }
+  const deger = ref({ ...varsayilan, ...kayitli } as T);
+  watch(
+    deger,
+    (yeni) => {
+      try {
+        localStorage.setItem(anahtar, JSON.stringify(yeni));
+      } catch {
+        /* depolama kapalı olabilir */
+      }
+    },
+    { deep: true },
+  );
+  return deger;
+}
+
 export const useSettingsStore = defineStore("settings", () => {
   const theme = ref<Theme>((localStorage.getItem("rv-theme") as Theme) ?? "dark");
 
@@ -358,13 +388,13 @@ export const useSettingsStore = defineStore("settings", () => {
     }
   }
 
-  const defaults = ref({
+  const defaults = kaliciRef("rv-ayar-varsayilanlar", {
     engineId: "googletranslate",
     voiceId: "tr-google",
     fallbackOnQuota: true,
   });
 
-  const translation = ref({
+  const translation = kaliciRef("rv-ayar-ceviri", {
     provider: "google",
     targetLang: "tr",
     /** Zaten hedef dildeki metni tekrar çevirip bozmamak için. */
@@ -419,7 +449,7 @@ export const useSettingsStore = defineStore("settings", () => {
     return "/yeni/kaynak";
   });
 
-  const advanced = ref({
+  const advanced = kaliciRef("rv-ayar-gelismis", {
     /** Ağ isteklerinin zaman aşımı — yavaş bağlantılarda artırılabilir. */
     timeoutSec: 30,
   });
@@ -532,10 +562,10 @@ export const useSettingsStore = defineStore("settings", () => {
 
   /** Arka plan videolarının bulunduğu klasör. Varsayılan olarak ana projenin
    *  indirdiği kitaplığı kullanıyoruz; kullanıcı değiştirebilir. */
-  const backgroundsDir = ref(
-    localStorage.getItem("rv-backgrounds-dir") ??
-      "/Volumes/Mac Harici Disk/VibeProject/RedditVideoMakerBot/assets/backgrounds/video",
-  );
+  /** Kullanıcının kendi arka plan videoları. Boşsa yalnızca uygulamayla gelen
+   *  varsayılanlar listelenir. (Eskiden geliştirme makinesindeki bir yola
+   *  sabitlenmişti; başka her makinede liste boş kalıyordu.) */
+  const backgroundsDir = ref(localStorage.getItem("rv-backgrounds-dir") ?? "");
 
   watch(backgroundsDir, (value) => {
     try {
@@ -545,10 +575,7 @@ export const useSettingsStore = defineStore("settings", () => {
     }
   });
 
-  const musicDir = ref(
-    localStorage.getItem("rv-music-dir") ??
-      "/Volumes/Mac Harici Disk/VibeProject/RedditVideoMakerBot/assets/backgrounds/audio",
-  );
+  const musicDir = ref(localStorage.getItem("rv-music-dir") ?? "");
 
   watch(musicDir, (value) => {
     try {
@@ -558,7 +585,7 @@ export const useSettingsStore = defineStore("settings", () => {
     }
   });
 
-  const video = ref({
+  const video = kaliciRef("rv-ayar-video", {
     resolution: "1080x1920",
     fps: "30",
     codec: "h264",

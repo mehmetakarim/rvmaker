@@ -297,6 +297,43 @@ sürüm başlığını `tauri.conf.json`'dan alıyor: bir kez `v0.1.1` etiketi
 atılırken dosya 0.1.0'da kalmıştı ve yayın "RVMaker v0.1.0" adıyla,
 `RVMaker_0.1.0_*` dosyalarıyla çıktı.
 
+## Windows notları
+
+İlk Windows denemesinde yakalanan ve düzeltilen platform varsayımları. Hepsinin
+saf mantığı birim testli; `Kontrol` iş akışındaki **Windows duman testi** gerçek
+bir Windows makinesine ffmpeg ve bird kurup uçtan uca render ediyor.
+
+| Sorun | Belirti | Çözüm |
+|---|---|---|
+| Kodlayıcı platforma bakmıyordu | `Unknown encoder 'h264_videotoolbox'` | `encoder_candidates` platform bazlı aday listesi (Windows: nvenc → qsv → amf → libx264). Aday tek karelik kodlamayla yoklanıyor; render yine düşerse bir kez yazılım kodlayıcıyla yeniden deneniyor. |
+| `where` çıktısının ilk satırı | `bird`: os error 193 | `pick_where_line` Windows'ta `.exe`, `.cmd`, `.bat`'a öncelik veriyor. |
+| `.cmd` üzerinden argüman | Arama sorgusu bozulabiliyor | bird, npm kabuğunun yanındaki `package.json`'dan giriş dosyası çözülüp `node <giriş>` ile çalıştırılıyor. |
+| PATH `:` ile bölünüyordu | `node` bulunamıyor | `PATH_SEP` (Windows'ta `;`); `C:\` sürücü harfleri artık parçalanmıyor. |
+| Konsol penceresi | Her ffmpeg çağrısında siyah pencere | `toolpath::command` Windows'ta `CREATE_NO_WINDOW` ekliyor. |
+| İptal tespiti | İptal "birleştirilemedi" hatası gibi görünüyordu | `taskkill /F` çıkış kodu 1 döndürüyor; iptal bayrağı ayrıca kontrol ediliyor. |
+
+## Ayarların kalıcılığı
+
+`video`, `translation`, `defaults` ve `advanced` ayar grupları eskiden hiç
+kaydedilmiyordu ve her açılışta varsayılana dönüyordu. `kaliciRef` yardımcısı
+her grubu localStorage'da tutuyor; kayıtlı değer varsayılanların üstüne
+yazıldığı için sonradan eklenen alanlar eski kayıtlarda da varsayılanıyla geliyor.
+
+## Varsayılan medya
+
+`src-tauri/resources/media/` altındaki iki dosya uygulamayla birlikte paketleniyor
+ve **bu depoda özgün olarak üretildi**:
+
+- `varsayilan-gradyan.mp4` — ffmpeg `gradients` kaynağıyla, 10 sn ileri + 10 sn
+  geri oynatılan dikişsiz döngü (0,55 MB).
+- `varsayilan-ambiyans.mp3` — `scripts/varsayilan-ambiyans-uret.py` ile
+  prosedürel sentezlenmiş 60 sn'lik akor pad'i, bas ve çan tınıları (0,92 MB).
+
+İkisini de `scripts/varsayilan-medya-uret.sh` yeniden üretiyor. Geliştirme
+sırasında kullanılan 90 MB'lık gradyan paketlemek için fazla büyüktü; müzik
+dosyasının ise kaynağı ve lisansı bilinmediği için herkese açık bir sürümde
+dağıtılmadı.
+
 ## Bilinen sınırlar
 
 - **Kuyrukta eşzamanlı iş 1'e sabit.** ffmpeg zaten tüm çekirdekleri kullandığı

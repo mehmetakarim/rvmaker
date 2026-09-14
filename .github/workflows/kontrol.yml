@@ -39,3 +39,49 @@ jobs:
 
       - name: Rust testleri
         run: cargo test --lib --manifest-path src-tauri/Cargo.toml
+
+  # Windows'ta gerçekten çalışıyor mu? Birim testleri derlemeyi ve saf mantığı
+  # sınıyor; bu iş ise gerçek ffmpeg ve bird ile uçtan uca render ediyor.
+  # Kullanıcının Windows makinesinde yakalanan iki hatanın (videotoolbox
+  # kodlayıcısı, os error 193) kapandığını burada görüyoruz.
+  windows-duman:
+    name: Windows duman testi
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: "./src-tauri -> target"
+
+      - name: ffmpeg kur
+        run: choco install ffmpeg -y --no-progress
+
+      - name: bird kur
+        run: npm install -g @steipete/bird
+
+      - name: Ön yüz derlemesi
+        run: |
+          npm ci
+          npx vite build
+
+      - name: Araçlar bulunuyor mu
+        shell: pwsh
+        run: |
+          where.exe ffmpeg
+          where.exe bird
+          where.exe node
+
+      - name: Canlı Windows testleri
+        run: >
+          cargo test --lib --manifest-path src-tauri/Cargo.toml --
+          --ignored --nocapture --test-threads=1
+          canli_kodlayici_secimi canli_uctan_uca_render canli_bird_cozumleme

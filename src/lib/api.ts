@@ -331,6 +331,8 @@ export interface BackgroundEntry {
   width: number;
   height: number;
   duration_sec: number;
+  /** Uygulamayla birlikte gelen varsayılan medya mı? */
+  bundled: boolean;
 }
 
 /** Klasördeki gerçek arka plan videolarını listeler. */
