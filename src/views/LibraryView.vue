@@ -13,6 +13,7 @@ import {
   Film,
   Plus,
   CirclePause,
+  ChevronDown,
 } from "@lucide/vue";
 import { useLibraryStore, type UnfinishedJob } from "@/stores/library";
 import { useDraftStore } from "@/stores/draft";
@@ -75,6 +76,32 @@ async function resume(job: UnfinishedJob) {
   await jobs.runJob(job.id);
 }
 
+/** Yarım üretim şeridi ekranı kaplamasın: ilk birkaçı görünür, gerisi açılır. */
+const RESUME_GORUNUR = 3;
+const resumeAcik = ref(false);
+const gorunenYarimlar = computed(() =>
+  resumeAcik.value ? library.unfinished : library.unfinished.slice(0, RESUME_GORUNUR),
+);
+
+/** Kalıcı silme — ses parçaları ve taslak diskten gidiyor, onay şart. */
+async function removeUnfinished(job: UnfinishedJob) {
+  const onay = window.confirm(
+    `"${job.title}" yarım üretimi ve hazır ses parçaları silinecek. Devam edilsin mi?`,
+  );
+  if (!onay) return;
+  await library.removeUnfinished(job.id);
+}
+
+async function removeAllUnfinished() {
+  const adet = library.unfinished.length;
+  const onay = window.confirm(
+    `${adet} yarım üretimin tamamı ve hazır ses parçaları silinecek. Devam edilsin mi?`,
+  );
+  if (!onay) return;
+  await library.removeAllUnfinished();
+  resumeAcik.value = false;
+}
+
 const rangeOptions = [
   { value: "all", label: "Tüm zamanlar" },
   { value: "1", label: "Bugün" },
@@ -90,29 +117,56 @@ const rangeOptions = [
       <div class="resume-head">
         <CirclePause :size="14" class="resume-icon" />
         <span>Yarım kalan üretim</span>
+        <span class="resume-count rv-tabular">{{ library.unfinished.length }}</span>
         <span class="resume-note">
           Kaldığı yerden sürdürülür; hazır ses parçaları yeniden üretilmez.
         </span>
+        <button
+          v-if="library.unfinished.length > 1"
+          type="button"
+          class="resume-clear"
+          @click="removeAllUnfinished"
+        >
+          <Trash2 :size="13" />
+          Tümünü sil
+        </button>
       </div>
 
       <div v-if="resumeError" class="load-error">{{ resumeError }}</div>
 
-      <button
-        v-for="job in library.unfinished"
-        :key="job.id"
-        type="button"
-        class="resume-row"
-        @click="resume(job)"
-      >
-        <div class="resume-body">
-          <div class="resume-title">{{ job.title }}</div>
-          <div class="resume-meta">
+      <div v-for="job in gorunenYarimlar" :key="job.id" class="resume-row">
+        <button type="button" class="resume-body" @click="resume(job)">
+          <span class="resume-title">{{ job.title }}</span>
+          <span class="resume-meta">
             <span class="rv-mono">{{ job.handle }}</span>
             <span>{{ job.createdAt }}</span>
             <span class="rv-tabular">{{ job.doneClips }} / {{ job.totalClips }} ses hazır</span>
-          </div>
-        </div>
-        <span class="resume-action">Devam et</span>
+          </span>
+        </button>
+        <button type="button" class="resume-action" @click="resume(job)">Devam et</button>
+        <button
+          type="button"
+          class="resume-delete"
+          title="Yarım üretimi sil"
+          aria-label="Yarım üretimi sil"
+          @click="removeUnfinished(job)"
+        >
+          <Trash2 :size="14" />
+        </button>
+      </div>
+
+      <button
+        v-if="library.unfinished.length > RESUME_GORUNUR"
+        type="button"
+        class="resume-more"
+        @click="resumeAcik = !resumeAcik"
+      >
+        <ChevronDown :size="14" :class="{ acik: resumeAcik }" />
+        {{
+          resumeAcik
+            ? "Daralt"
+            : `${library.unfinished.length - RESUME_GORUNUR} tane daha göster`
+        }}
       </button>
     </section>
 
@@ -316,19 +370,71 @@ const rangeOptions = [
 .resume-row {
   display: flex;
   align-items: center;
-  gap: var(--rv-space-3);
-  padding: 10px var(--rv-space-3);
+  gap: var(--rv-space-2);
+  padding: 8px var(--rv-space-3);
   border-radius: var(--rv-radius-sm);
   border: 1px solid var(--rv-border);
   background: var(--rv-bg-surface);
-  color: inherit;
+}
+
+.resume-count {
+  font-size: 11px;
+  padding: 0 6px;
+  border-radius: var(--rv-radius-pill);
+  background: color-mix(in srgb, var(--rv-accent) 18%, transparent);
+  color: var(--rv-accent-quiet);
+}
+
+.resume-clear,
+.resume-more,
+.resume-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--rv-text-faint);
   font: inherit;
-  text-align: left;
+  font-size: 12px;
   cursor: pointer;
+}
+
+.resume-clear {
+  margin-left: auto;
+}
+
+.resume-clear:hover,
+.resume-delete:hover {
+  color: var(--rv-danger);
+}
+
+.resume-delete {
+  flex: none;
+  padding: 6px;
+  border-radius: var(--rv-radius-sm);
+}
+
+.resume-more {
+  align-self: flex-start;
+  padding: 2px 0;
+}
+
+.resume-more:hover {
+  color: var(--rv-text);
+}
+
+.resume-more .acik {
+  transform: rotate(180deg);
 }
 
 .resume-row:hover {
   border-color: var(--rv-accent);
+}
+
+.resume-action {
+  background: none;
+  font: inherit;
+  cursor: pointer;
 }
 
 .resume-body {
@@ -337,6 +443,13 @@ const rangeOptions = [
   display: flex;
   flex-direction: column;
   gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .resume-title {

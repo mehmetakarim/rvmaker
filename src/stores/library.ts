@@ -208,9 +208,41 @@ export const useLibraryStore = defineStore("library", () => {
     useToastStore().push({ tone: "warning", text: `"${item.title}" silindi` });
   }
 
+  /** Yarım kalan bir işin klasörünü siler — ses parçaları ve taslak dahil. */
+  async function removeUnfinished(id: string) {
+    const job = unfinished.value.find((j) => j.id === id);
+    if (!job) return;
+    if (isTauri()) {
+      try {
+        await deleteJob(job.dir);
+      } catch (error) {
+        loadError.value = String(error);
+        return;
+      }
+    }
+    unfinished.value = unfinished.value.filter((j) => j.id !== id);
+  }
+
+  /** Bütün yarım işleri siler; kaç tanesinin silindiğini döndürür. */
+  async function removeAllUnfinished() {
+    const hepsi = [...unfinished.value];
+    let silinen = 0;
+    for (const job of hepsi) {
+      const once = unfinished.value.length;
+      await removeUnfinished(job.id);
+      if (unfinished.value.length < once) silinen += 1;
+    }
+    if (silinen > 0) {
+      useToastStore().push({ tone: "warning", text: `${silinen} yarım üretim silindi` });
+    }
+    return silinen;
+  }
+
   return {
     items,
     unfinished,
+    removeUnfinished,
+    removeAllUnfinished,
     thumbs,
     loading,
     loadError,
