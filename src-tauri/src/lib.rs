@@ -304,19 +304,35 @@ async fn fetch_reddit_post(
 
 // --- X (Twitter) ---
 
-#[tauri::command]
-fn set_x_credentials(raw: String) -> Result<(), String> {
-    twitter::store_credentials(&raw)
+/// Anahtar zinciri işlemini ana iş parçacığının dışında çalıştırır.
+///
+/// Tauri `async` olmayan komutları ana iş parçacığında koşturuyor. macOS
+/// yeni imzalı bir sürüm eski bir kayda eriştiğinde "anahtar zincirine erişim"
+/// onayı soruyor ve `SecKeychainFindGenericPassword` cevap gelene kadar dönmüyor.
+/// Onay penceresi başka bir pencerenin arkasında kaldığında uygulama boş ekranda
+/// donmuş görünüyordu (ölçüldü: ana iş parçacığı `reddit_cookie_present` içinde
+/// bekliyordu). Artık bekleme ayrı bir iş parçacığında; arayüz çalışmaya devam ediyor.
+async fn anahtar_zinciri<T: Send + 'static>(
+    is: impl FnOnce() -> T + Send + 'static,
+) -> Result<T, String> {
+    tokio::task::spawn_blocking(is)
+        .await
+        .map_err(|e| format!("Anahtar zinciri işlemi başlatılamadı: {e}"))
 }
 
 #[tauri::command]
-fn clear_x_credentials() -> Result<(), String> {
-    twitter::clear_credentials()
+async fn set_x_credentials(raw: String) -> Result<(), String> {
+    anahtar_zinciri(move || twitter::store_credentials(&raw)).await?
 }
 
 #[tauri::command]
-fn x_credentials_present() -> bool {
-    twitter::credentials_present()
+async fn clear_x_credentials() -> Result<(), String> {
+    anahtar_zinciri(twitter::clear_credentials).await?
+}
+
+#[tauri::command]
+async fn x_credentials_present() -> bool {
+    anahtar_zinciri(twitter::credentials_present).await.unwrap_or(false)
 }
 
 /// Çerezlerin geçerliliğini sınar; bağlanılan hesabı döndürür.
@@ -346,6 +362,15 @@ struct TranslateOptions {
     /// Satır satır `kaynak=hedef` terim listesi.
     glossary: String,
     timeout_sec: u64,
+}
+
+/// Ön yüzde yakalanmamış hataları stderr'e yazar.
+///
+/// Paketli uygulamada webview konsolu görünmüyor; açılışta boş ekran ya da
+/// sessizce çalışmayan bir adım olduğunda sebebin bir yerde kalması gerekiyor.
+#[tauri::command]
+fn frontend_log(level: String, message: String) {
+    eprintln!("[ön yüz · {level}] {message}");
 }
 
 /// Ölçütlere uyan viral tweet'leri getirir — "Viral" ekranının listesi.
@@ -386,21 +411,25 @@ async fn fetch_subreddit(
 /// Oturum çerezini sistem anahtar zincirine yazar.
 /// Değer bir daha arayüze dönmez; yalnızca varlığı sorgulanabilir.
 #[tauri::command]
-fn set_reddit_cookie(cookie: String) -> Result<(), String> {
-    if cookie.trim().is_empty() {
-        return reddit::clear_cookie();
-    }
-    reddit::store_cookie(&cookie)
+async fn set_reddit_cookie(cookie: String) -> Result<(), String> {
+    anahtar_zinciri(move || {
+        if cookie.trim().is_empty() {
+            reddit::clear_cookie()
+        } else {
+            reddit::store_cookie(&cookie)
+        }
+    })
+    .await?
 }
 
 #[tauri::command]
-fn clear_reddit_cookie() -> Result<(), String> {
-    reddit::clear_cookie()
+async fn clear_reddit_cookie() -> Result<(), String> {
+    anahtar_zinciri(reddit::clear_cookie).await?
 }
 
 #[tauri::command]
-fn reddit_cookie_present() -> bool {
-    reddit::cookie_present()
+async fn reddit_cookie_present() -> bool {
+    anahtar_zinciri(reddit::cookie_present).await.unwrap_or(false)
 }
 
 #[derive(Serialize, Clone)]
@@ -480,18 +509,18 @@ pub struct SpeechItem {
 }
 
 #[tauri::command]
-fn set_engine_key(engine: engines::Engine, key: String) -> Result<(), String> {
-    engines::store_key(engine, &key)
+async fn set_engine_key(engine: engines::Engine, key: String) -> Result<(), String> {
+    anahtar_zinciri(move || engines::store_key(engine, &key)).await?
 }
 
 #[tauri::command]
-fn clear_engine_key(engine: engines::Engine) -> Result<(), String> {
-    engines::clear_key(engine)
+async fn clear_engine_key(engine: engines::Engine) -> Result<(), String> {
+    anahtar_zinciri(move || engines::clear_key(engine)).await?
 }
 
 #[tauri::command]
-fn engine_key_present(engine: engines::Engine) -> bool {
-    engines::key_present(engine)
+async fn engine_key_present(engine: engines::Engine) -> bool {
+    anahtar_zinciri(move || engines::key_present(engine)).await.unwrap_or(false)
 }
 
 #[tauri::command]
@@ -1256,6 +1285,7 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .invoke_handler(tauri::generate_handler![
             check_environment,
+            frontend_log,
             install_ffmpeg,
             fetch_reddit_post,
             fetch_subreddit,

@@ -90,8 +90,14 @@ export const useSettingsStore = defineStore("settings", () => {
     setupLoading.value = true;
     setupError.value = "";
     try {
-      // Çerez durumu bilinmeden Reddit erişimi doğru değerlendirilemez.
-      await refreshCookieStatus();
+      // Çerez durumu Reddit maddesi için gerekiyor, ama anahtar zinciri macOS'ta
+      // güncellemeden sonra onay isteyebiliyor ve cevap gelene kadar dönmüyor.
+      // ffmpeg gibi denetimlerin bununla ilgisi yok: en fazla 1,5 sn bekleyip
+      // devam ediyoruz; çerez durumu gelince bir sonraki denetimde yansıyor.
+      await Promise.race([
+        refreshCookieStatus(),
+        new Promise((bitir) => setTimeout(bitir, 1500)),
+      ]);
       const checks = await checkEnvironment({
         backgrounds_dir: backgroundsDir.value,
         output_dir: video.value.outputDir,
