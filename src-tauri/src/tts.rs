@@ -5,7 +5,6 @@
 //! indirilir ve ffmpeg ile tek dosyada birleştirilir.
 
 use std::path::{Path, PathBuf};
-use std::process::Command;
 use std::time::Duration;
 
 use serde::Serialize;
@@ -397,7 +396,7 @@ pub fn mp3_duration(path: &Path) -> Result<f64, String> {
 }
 
 fn probe_duration(ffprobe: &str, path: &Path) -> Result<f64, String> {
-    let output = Command::new(ffprobe)
+    let output = crate::toolpath::command(ffprobe)
         .args([
             "-v",
             "error",
@@ -460,7 +459,7 @@ fn atempo_chain(speed: f64) -> Option<String> {
 /// İstenen uzunlukta sessizlik dosyası üretir.
 fn make_silence(ffmpeg: &str, ms: u32, path: &Path) -> Result<(), String> {
     let seconds = f64::from(ms) / 1000.0;
-    let output = Command::new(ffmpeg)
+    let output = crate::toolpath::command(ffmpeg)
         .args([
             "-y",
             "-f",
@@ -550,7 +549,7 @@ pub async fn synthesize_to_file(
     std::fs::write(&list_path, lines.join("\n"))
         .map_err(|e| format!("Birleştirme listesi yazılamadı: {e}"))?;
 
-    let mut cmd = Command::new(&ffmpeg);
+    let mut cmd = crate::toolpath::command(&ffmpeg);
     cmd.args(["-y", "-f", "concat", "-safe", "0", "-i"]).arg(&list_path);
 
     match &tempo {

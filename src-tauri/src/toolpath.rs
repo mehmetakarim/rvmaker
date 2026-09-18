@@ -289,6 +289,64 @@ mod tests {
         assert_eq!(pick_where_line("", false), None);
     }
 
+    /// Windows'ta konsol penceresi açılmaması için bütün alt süreçler
+    /// `toolpath::command`'dan geçmeli. Bu kural bir kez kaçtı: `tts.rs`'in
+    /// başındaki tek satırlık bir `#[cfg(test)]` yüzünden oradaki üretim
+    /// çağrıları test sanıldı ve her seslendirme parçasında pencere açıldı.
+    /// Kaynağı tarayıp test modülleri dışındaki `Command::new`'ı yakalıyoruz.
+    #[test]
+    fn alt_surecler_yalnizca_yardimcidan_gecer() {
+        let kok = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+        let mut ihlaller = Vec::new();
+        for giris in std::fs::read_dir(&kok).unwrap().flatten() {
+            let yol = giris.path();
+            if yol.extension().and_then(|e| e.to_str()) != Some("rs") {
+                continue;
+            }
+            let ad = yol.file_name().unwrap().to_string_lossy().to_string();
+            if ad == "toolpath.rs" {
+                continue;
+            }
+            let metin = std::fs::read_to_string(&yol).unwrap();
+            let satirlar: Vec<&str> = metin.lines().collect();
+
+            // `#[cfg(test)] mod x { ... }` bloklarını kapsamıyla birlikte dışarıda bırak.
+            let mut test_satiri = vec![false; satirlar.len()];
+            let mut i = 0;
+            while i < satirlar.len() {
+                if satirlar[i].trim() == "#[cfg(test)]" && i + 1 < satirlar.len() {
+                    let sonraki = satirlar[i + 1].trim_start();
+                    if sonraki.starts_with("mod ") || sonraki.starts_with("pub mod ") {
+                        let mut derinlik = 0i32;
+                        let mut k = i + 1;
+                        while k < satirlar.len() {
+                            derinlik += satirlar[k].matches('{').count() as i32;
+                            derinlik -= satirlar[k].matches('}').count() as i32;
+                            test_satiri[k] = true;
+                            if derinlik == 0 && k > i + 1 {
+                                break;
+                            }
+                            k += 1;
+                        }
+                        i = k;
+                    }
+                }
+                i += 1;
+            }
+
+            for (n, satir) in satirlar.iter().enumerate() {
+                if !test_satiri[n] && satir.contains("Command::new(") {
+                    ihlaller.push(format!("{ad}:{} {}", n + 1, satir.trim()));
+                }
+            }
+        }
+        assert!(
+            ihlaller.is_empty(),
+            "toolpath::command yerine Command::new kullanılmış:\n{}",
+            ihlaller.join("\n")
+        );
+    }
+
     #[test]
     fn bos_pathi_kurtarir() {
         let birlesik = merge_with("", &[PathBuf::from("/opt/homebrew/bin")], ':');
